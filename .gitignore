@@ -15,3 +15,13 @@ dist/
 
 # Local server logs (python -m http.server)
 *.log
+
+# Environment / secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+
+# Vercel CLI artifacts
+.vercel/
