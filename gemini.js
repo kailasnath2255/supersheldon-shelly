@@ -46,13 +46,45 @@
     ].join('\n');
   }
 
-  async function ask(query) {
+  // Build last N turns from the persisted Shelly chat as { role, parts } pairs
+  // for Gemini's `contents` array. Strips HTML so the model sees clean text.
+  function buildHistory(limit) {
+    if (!window.db) return [];
+    const chat = db.get().shellyChat || [];
+    // Take the last 10 messages (≈5 exchanges) but never include the one we're
+    // about to send — that gets appended on the server.
+    const recent = chat.slice(-Math.max(0, limit || 10));
+    const turns = [];
+    let lastRole = null;
+    for (const m of recent) {
+      const role = m.from === 'user' ? 'user' : 'model';
+      const text = String(m.text || '').replace(/<[^>]+>/g, '').trim();
+      if (!text) continue;
+      // Gemini requires alternating user/model — merge consecutive same-role
+      if (lastRole === role && turns.length) {
+        turns[turns.length - 1].parts[0].text += '\n' + text;
+      } else {
+        turns.push({ role: role, parts: [{ text: text }] });
+        lastRole = role;
+      }
+    }
+    // contents must start with user; drop leading model messages
+    while (turns.length && turns[0].role !== 'user') turns.shift();
+    return turns;
+  }
+
+  async function ask(query, options) {
     if (!healthy) throw new Error('proxy-marked-unhealthy');
+    const includeHistory = !options || options.includeHistory !== false;
     try {
       const res = await fetch('/api/shelly', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query, context: buildContext() }),
+        body: JSON.stringify({
+          query: query,
+          context: buildContext(),
+          history: includeHistory ? buildHistory(10) : [],
+        }),
       });
       if (!res.ok) {
         // 404 (no function deployed) or 500 (no env var) — disable for this session

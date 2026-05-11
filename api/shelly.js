@@ -61,10 +61,13 @@ export default async function handler(req, res) {
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
   const query = body && body.query;
   const context = (body && body.context) || '';
+  // history: [{ role: 'user'|'model', parts: [{ text: '...' }] }, …]  (last N turns)
+  const history = (body && Array.isArray(body.history)) ? body.history : [];
 
   if (!query || typeof query !== 'string') return res.status(400).json({ error: 'missing-query' });
   if (query.length > 1500)                  return res.status(400).json({ error: 'query-too-long' });
   if (context.length > 8000)                return res.status(400).json({ error: 'context-too-long' });
+  if (history.length > 20)                  return res.status(400).json({ error: 'history-too-long' });
 
   const systemPrompt = SYSTEM_PROMPT_BASE + '\n\n## LIVE CONTEXT — real data about THIS user RIGHT NOW:\n' + context + '\n\nUse these real numbers. Never invent stats.';
 
@@ -75,7 +78,9 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: 'user', parts: [{ text: query }] }],
+        // Pass prior turns so follow-ups like "explain more" / "walk me through"
+        // / "what next?" reference the previous reply naturally.
+        contents: history.concat([{ role: 'user', parts: [{ text: query }] }]),
         generationConfig: {
           temperature: 0.6,
           topP: 0.9,

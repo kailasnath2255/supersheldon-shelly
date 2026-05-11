@@ -1222,33 +1222,72 @@
 
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
+  // Detect when a query is a follow-up to the previous turn — phrases like
+  // "explain more", "walk me through", "go on", "give me an example", "why",
+  // and ultra-short queries like "more?", "and?", "huh?". Force-routes these
+  // through Gemini-with-history so the answer actually builds on what was
+  // just said, instead of bouncing off the rule-based intent matcher.
+  function isFollowUp(query) {
+    const s = String(query).toLowerCase().trim().replace(/[?!.]+$/, '');
+    if (!s) return false;
+    if (/^(explain( (more|that|further|in detail|like i'?m \w+))?|tell me more|walk me through( (that|this|it))?|go on|please continue|continue|expand( on (that|this|it))?|more details?|elaborate|what next|next step|next\??|and (then|now|after|how|why|what)|but (how|why|what)|so (how|why|what)|step ?by ?step|in detail|in (plain|simple) (english|terms)|how (exactly|come|so|does (that|this) work)|why( is that)?|give me (an? )?example|for example|show me( how)?|like how|what do you mean|what does that mean|can you (be more specific|explain|elaborate|expand)|how do i (do|start) (that|this|it))$/.test(s)) return true;
+    // Ultra-short follow-up cues
+    if (s.length < 18 && /^(more|continue|next|why|how|huh|what|and|ok then|then|details?|specifically)$/.test(s)) return true;
+    return false;
+  }
+
+  function hasRecentTurn() {
+    if (!window.db) return false;
+    const chat = db.get().shellyChat || [];
+    return chat.length >= 2; // at least one prior exchange
+  }
+
+  function renderGeminiReply(out) {
+    // Sanitise — Gemini sometimes slips into markdown even when told not to
+    const html = out
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+?)`/g, '<code>$1</code>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+    say(html, { instant: true });
+  }
+
   function ask(query) {
     renderUserMessage(query);
     open();
+
+    // === Follow-up handler ===
+    // If the user's query reads like a follow-up AND we have prior context AND
+    // Gemini is wired up, route directly to Gemini with conversation history.
+    // The rule-based router would just bounce a vague "explain more" to its
+    // generic fallback — Gemini can actually elaborate on the previous reply.
+    if (isFollowUp(query) && hasRecentTurn() && window.gemini && gemini.isReady()) {
+      const typing = showTyping();
+      gemini.ask(query).then(function (out) {
+        if (typing) typing.remove();
+        renderGeminiReply(out);
+      }).catch(function () {
+        if (typing) typing.remove();
+        say("I'd love to walk you through it — could you tell me which bit you'd like expanded? (e.g. <em>“the credits part”</em> or <em>“how to invite a parent”</em>)", { instant: true });
+      });
+      return;
+    }
+
     const reply = route(query);
     const text = typeof reply === 'string' ? reply : (reply && reply.text);
     const actions = (reply && reply.actions) || null;
     const isFallback = reply && reply._fallback;
 
     // === Silent Gemini fallback ===
-    // If the rule-based router didn't match AND a key is configured in
-    // gemini.js, quietly ask Gemini with our tight system prompt + live context.
-    // The user has no idea Gemini is being called — to them, Shelly answered.
+    // If the rule-based router didn't match AND a key is configured server-side,
+    // quietly ask Gemini with our tight system prompt + live context + history.
     if (isFallback && window.gemini && gemini.isReady()) {
       const typing = showTyping();
       gemini.ask(query).then(function (out) {
         if (typing) typing.remove();
-        // Sanitise — Gemini sometimes slips into markdown even when told not to
-        const html = out
-          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
-          .replace(/`([^`]+?)`/g, '<code>$1</code>')
-          .replace(/\n\n/g, '<br><br>')
-          .replace(/\n/g, '<br>');
-        say(html, { instant: true });
+        renderGeminiReply(out);
       }).catch(function () {
-        // On any error, silently fall back to the rule-based reply.
-        // The user still gets a response — they never see the error.
         if (typing) typing.remove();
         say(text, { actions: actions, instant: true });
       });
