@@ -93,7 +93,14 @@ function render() {
   });
   const rows = document.getElementById('rows');
   if (!users.length) {
-    rows.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#9ca3af;">No users match your filter.</td></tr>';
+    const totalUsers = db.get().users.length;
+    const isFiltered = !!searchQuery || activeRole !== 'all';
+    const msg = totalUsers === 0
+      ? '<strong>No users yet.</strong><br><span style="font-size:12.5px;">Click <em>Invite User</em> in the top-right to add your first.</span>'
+      : isFiltered
+        ? 'No users match your filter.<br><span style="font-size:12.5px;">Try clearing the search or switching tabs.</span>'
+        : 'No users to show.';
+    rows.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#6b7280;">' + msg + '</td></tr>';
     return;
   }
   rows.innerHTML = users.map(function (u) {

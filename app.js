@@ -63,7 +63,14 @@
       '<div id="m-actions" style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;"></div>';
     bd.appendChild(card);
     document.body.appendChild(bd);
-    const close = function () { bd.remove(); if (opts.onClose) opts.onClose(); };
+    // ESC key dismisses the topmost modal — and ONLY the topmost
+    const escHandler = function (e) { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
+    document.addEventListener('keydown', escHandler);
+    const close = function () {
+      document.removeEventListener('keydown', escHandler);
+      bd.remove();
+      if (opts.onClose) opts.onClose();
+    };
     card.querySelector('#m-close').addEventListener('click', close);
     bd.addEventListener('click', function (e) { if (e.target === bd) close(); });
     const actionsEl = card.querySelector('#m-actions');

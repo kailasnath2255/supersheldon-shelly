@@ -152,24 +152,28 @@ verify.addEventListener('click', function () {
 });
 
 // Resend countdown
-const timerEl = document.getElementById('timer');
 const resend = document.getElementById('resend');
+resend.addEventListener('click', function (e) { e.preventDefault(); }); // belt-and-braces
 let secs = 28;
 resend.style.pointerEvents = 'none';
 resend.style.opacity = '0.6';
-const tick = setInterval(function () {
+let tick = setInterval(function () {
   secs -= 1;
+  const timerEl = document.getElementById('timer');
   if (secs <= 0) {
-    clearInterval(tick);
-    resend.parentNode.innerHTML = 'Haven\'t received the Code? <a href="#" id="resend">Resend Code</a>';
-    document.getElementById('resend').addEventListener('click', function (e) {
+    clearInterval(tick); tick = null;
+    const parent = document.getElementById('resend').parentNode;
+    parent.innerHTML = 'Haven\'t received the Code? <a href="#" id="resend">Resend Code</a>';
+    parent.querySelector('#resend').addEventListener('click', function (e) {
       e.preventDefault();
-      app.toast('Code resent');
+      app.toast('Code resent — try 2 4 7 2 again');
     });
     return;
   }
-  timerEl.textContent = secs;
+  if (timerEl) timerEl.textContent = secs;
 }, 1000);
+// Clean up if user navigates away
+window.addEventListener('beforeunload', function () { if (tick) clearInterval(tick); });
 </script>
 
 </body>

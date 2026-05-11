@@ -31,12 +31,7 @@
     </div>
 
     <div class="section">
-      <div class="kpi-grid" style="margin-bottom:20px;">
-        <div class="kpi"><h4>Total Courses</h4><div class="value">12</div></div>
-        <div class="kpi"><h4>Enrollments</h4><div class="value">847</div><div class="delta up">▲ 8% this month</div></div>
-        <div class="kpi"><h4>Avg. Completion</h4><div class="value">63%</div></div>
-        <div class="kpi"><h4>Watch Hours</h4><div class="value">2,140</div></div>
-      </div>
+      <div class="kpi-grid" style="margin-bottom:20px;" id="recorded-kpis"></div>
 
       <div class="card-grid" id="grid">
         <a class="card" data-name="Vedic Math Crash Course">
@@ -102,6 +97,21 @@
 <script src="app.js"></script>
 <script src="shelly.js"></script>
 <script>
+function renderRecKpis() {
+  const recorded = db.get().courses.filter(function (c) { return c.type === 'recorded'; });
+  const total = recorded.length;
+  const enrolments = recorded.reduce(function (a, c) { return a + (c.enrollments || 0); }, 0);
+  const watchHours = recorded.reduce(function (a, c) { return a + ((c.enrollments || 0) * (c.durationHours || 0) * 0.55); }, 0);
+  const avgRating = recorded.length ? (recorded.reduce(function (a, c) { return a + (c.rating || 0); }, 0) / recorded.length).toFixed(1) : '—';
+  document.getElementById('recorded-kpis').innerHTML =
+    '<div class="kpi"><h4>Total Courses</h4><div class="value">' + total + '</div></div>' +
+    '<div class="kpi"><h4>Enrolments</h4><div class="value">' + enrolments.toLocaleString('en-IN') + '</div><div class="delta up">▲ 8% this month</div></div>' +
+    '<div class="kpi"><h4>Avg. Rating</h4><div class="value">' + avgRating + ' ⭐</div></div>' +
+    '<div class="kpi"><h4>Est. Watch Hours</h4><div class="value">' + Math.round(watchHours).toLocaleString('en-IN') + '</div></div>';
+}
+renderRecKpis();
+db.subscribe(renderRecKpis);
+
 document.getElementById('search').addEventListener('input', function (e) {
   const q = e.target.value.trim().toLowerCase();
   document.querySelectorAll('#grid .card').forEach(function (c) {

@@ -57,12 +57,7 @@
     </div>
 
     <div class="section">
-      <div class="kpi-grid" style="margin-bottom:18px;">
-        <div class="kpi"><h4>Revenue</h4><div class="value">₹2,14,300</div><div class="delta up">▲ 12% vs last month</div></div>
-        <div class="kpi"><h4>Active Learners</h4><div class="value">54</div><div class="delta up">▲ 6 new</div></div>
-        <div class="kpi"><h4>Sessions Held</h4><div class="value">312</div><div class="delta up">▲ 8%</div></div>
-        <div class="kpi"><h4>Avg. Rating</h4><div class="value">4.8 ⭐</div><div class="delta">across 142 reviews</div></div>
-      </div>
+      <div class="kpi-grid" style="margin-bottom:18px;" id="analytics-kpis"></div>
 
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;">
         <div class="chart-card">
@@ -121,12 +116,26 @@
 <script src="app.js"></script>
 <script src="shelly.js"></script>
 <script>
+function renderKpis() {
+  const a = db.get().analytics || {};
+  const fmtRupees = function (n) { return '₹' + (n || 0).toLocaleString('en-IN'); };
+  document.getElementById('analytics-kpis').innerHTML =
+    '<div class="kpi"><h4>Revenue</h4><div class="value">' + fmtRupees(a.revenue) + '</div><div class="delta up">▲ ' + (a.revenueGrowth || 0) + '% vs last month</div></div>' +
+    '<div class="kpi"><h4>Active Learners</h4><div class="value">' + (a.activeLearners || 0) + '</div><div class="delta up">▲ ' + (a.learnerGrowth || 0) + ' new</div></div>' +
+    '<div class="kpi"><h4>Sessions Held</h4><div class="value">' + (a.sessionsHeld || 0) + '</div><div class="delta up">▲ ' + (a.sessionsGrowth || 0) + '%</div></div>' +
+    '<div class="kpi"><h4>Avg. Rating</h4><div class="value">' + (a.avgRating || 0) + ' ⭐</div><div class="delta">across ' + (a.reviewCount || 0) + ' reviews</div></div>';
+}
+renderKpis();
+db.subscribe(renderKpis);
+
 document.getElementById('range').addEventListener('change', function () { app.toast('Range updated — refresh charts'); });
 document.getElementById('export-btn').addEventListener('click', function () { app.toast('Generating PDF report…'); });
 
 window.addEventListener('load', function () {
+  const a = db.get().analytics || {};
+  const revL = (a.revenue >= 100000 ? '₹' + (a.revenue / 100000).toFixed(2) + 'L' : '₹' + (a.revenue || 0).toLocaleString('en-IN'));
   shelly.suggest(['Why is revenue up?', "What's my best course?", 'Forecast next month']);
-  shelly.say("Strong month! 📈 Revenue is <strong>up 12% MoM</strong> to ₹2.14L, driven by <em>English Conversation Club</em>. Want me to forecast next month based on the trend?", {
+  shelly.say("Strong month! 📈 Revenue is <strong>up " + (a.revenueGrowth || 0) + "% MoM</strong> to " + revL + ", driven by <em>English Conversation Club</em>. Want me to forecast next month based on the trend?", {
     delay: 700,
     actions: [
       { label: 'Forecast', primary: true, onClick: function () {

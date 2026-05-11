@@ -399,9 +399,19 @@
   }
 
   // ===== Multi-turn flow state =====
-  // pendingFlow = { type: 'schedule-when', handler: (input) => void, data: {…} }
+  // setFlow({ type: 'schedule-when', handler: (input) => void, data: {…} }
   let pendingFlow = null;
-  function clearFlow() { pendingFlow = null; }
+  let pendingFlowTimer = null;
+  function clearFlow() {
+    pendingFlow = null;
+    if (pendingFlowTimer) { clearTimeout(pendingFlowTimer); pendingFlowTimer = null; }
+  }
+  function setFlow(flow) {
+    clearFlow();
+    pendingFlow = flow;
+    // Auto-expire abandoned flows after 5 minutes so the next message routes normally.
+    pendingFlowTimer = setTimeout(function () { pendingFlow = null; pendingFlowTimer = null; }, 5 * 60 * 1000);
+  }
   function isCancel(input) { return /^(cancel|stop|nevermind|never mind|forget it|exit)$/i.test(input.trim()); }
 
   function submitInput() {
@@ -499,11 +509,11 @@
         return { label: st.name, onClick: function () { askWhen(st); } };
       }).concat([{ label: 'Type a name', onClick: function () {
         say('Type the learner\'s name (or part of it). Say <code>cancel</code> to bail.');
-        pendingFlow = { type: 'schedule-student', handler: function (input) {
+        setFlow({ type: 'schedule-student', handler: function (input) {
           const found = db.get().users.find(function (u) { return u.role === 'student' && u.name.toLowerCase().indexOf(input.toLowerCase()) >= 0; });
-          if (!found) { say("Couldn't find a learner matching <em>" + escapeHtml(input) + "</em>. Try again or say <code>cancel</code>."); pendingFlow = arguments.callee.parent; return; }
+          if (!found) { say("Couldn't find a learner matching <em>" + escapeHtml(input) + "</em>. Try again or say <code>cancel</code>."); setFlow({ type: 'schedule-student', handler: this.handler }); return; }
           askWhen(found);
-        }};
+        }});
       } }]),
     });
   }
@@ -518,11 +528,12 @@
         { label: 'Saturday 11 AM', onClick: function () { confirmSchedule(student, satAt(11, 0)); } },
       ],
     });
-    pendingFlow = { type: 'schedule-when', handler: function (input) {
+    const whenHandler = function (input) {
       const dt = parseDate(input);
-      if (!dt) { say("Couldn't parse that time. Try <em>tomorrow 6pm</em>, <em>fri 5</em>, or <em>tomorrow</em>."); pendingFlow = { type: 'schedule-when', handler: arguments.callee, data: { student: student } }; return; }
+      if (!dt) { say("Couldn't parse that time. Try <em>tomorrow 6pm</em>, <em>fri 5</em>, or <em>tomorrow</em>."); setFlow({ type: 'schedule-when', handler: whenHandler, data: { student: student } }); return; }
       confirmSchedule(student, dt);
-    }, data: { student: student } };
+    };
+    setFlow({ type: 'schedule-when', handler: whenHandler, data: { student: student } });
   }
   function confirmSchedule(student, when) {
     pendingFlow = null;
@@ -547,11 +558,12 @@
     say('Draft a reply to whom?', {
       actions: chats.slice(0, 4).map(function (ch) { const u = db.findUser(ch.userId); return { label: u ? u.name : 'Chat', onClick: function () { draftAskTone(ch); } }; }),
     });
-    pendingFlow = { type: 'draft-who', handler: function (input) {
+    const draftHandler = function (input) {
       const found = matchByName(input);
-      if (!found) { say("Couldn't find that chat. Try again or <code>cancel</code>."); pendingFlow = { type: 'draft-who', handler: arguments.callee }; return; }
+      if (!found) { say("Couldn't find that chat. Try again or <code>cancel</code>."); setFlow({ type: 'draft-who', handler: draftHandler }); return; }
       draftAskTone(found);
-    }};
+    };
+    setFlow({ type: 'draft-who', handler: draftHandler });
   }
   function draftAskTone(chat) {
     const u = db.findUser(chat.userId);
@@ -762,12 +774,32 @@
         "<code>/remind &lt;text&gt; in 10m</code> · <code>/reminders</code><br>" +
         "<code>/snooze 30m</code> · <code>/unsnooze</code><br>" +
         "<code>/calc 100*4</code> — quick math<br>" +
+        "<code>/search &lt;text&gt;</code> — find past messages<br>" +
+        "<code>/streak</code> — your active-day streak 🔥<br>" +
         "<code>/go &lt;page&gt;</code> — jump anywhere<br>" +
         "<code>/tour</code> · <code>/clear</code> · <code>/reset</code><br><br>" +
+        "<strong>Shortcut:</strong> press <code>Cmd</code>+<code>K</code> (Mac) or <code>Ctrl</code>+<code>K</code> to open me from anywhere · <code>/</code> alone jumps right into a command.<br><br>" +
         "Or <em>just ask me</em> in plain English — I'll figure it out.";
     }
     if (c === '/tour') { setTimeout(startOnboardingTour, 200); return 'Starting tour… ✨'; }
     if (c === '/summary') { setTimeout(showSummary, 100); return null; }
+    if (c === '/streak') {
+      const s = getStreak();
+      if (s <= 0) return "First day — let's start a streak. 🌱";
+      if (s === 1) return "One day in — keep it going! 🌱";
+      return '🔥 <strong>' + s + '-day streak</strong> — you\'re showing up consistently. ' + (s >= 7 ? 'A full week — legendary.' : s >= 3 ? 'Three days locked in.' : '');
+    }
+    if (c === '/search' || c === '/find-msg') {
+      if (!rest) return 'Search what? Try <code>/search aadya</code> or <code>/search credits</code>.';
+      const hits = searchHistory(rest);
+      if (!hits.length) return 'No past messages matched <em>"' + escapeHtml(rest) + '"</em>.';
+      return 'Found <strong>' + hits.length + '</strong> past message(s) mentioning <em>"' + escapeHtml(rest) + '"</em>:<br>' +
+        hits.slice(0, 4).map(function (m) {
+          const snip = m.text.replace(/<[^>]+>/g, '').slice(0, 100);
+          return '• <em>' + (m.from === 'user' ? 'you:' : 'me:') + '</em> ' + escapeHtml(snip) + (m.text.length > 100 ? '…' : '');
+        }).join('<br>');
+    }
+    if (c === '/briefing' || c === '/morning') { setTimeout(showSummary, 100); return null; }
     if (c === '/remember') {
       const text = rest.trim();
       if (!text) return 'Tell me what to remember. Try <code>/remember Aadya prefers morning sessions</code>.';
@@ -1243,14 +1275,23 @@
   }
 
   function renderGeminiReply(out) {
-    // Sanitise — Gemini sometimes slips into markdown even when told not to
-    const html = out
+    // Escape HTML first to prevent XSS via model-injected scripts, THEN
+    // re-allow only the formatting tags we explicitly want (strong/em/code/br).
+    let safe = escapeHtml(String(out || ''));
+    // Markdown → safe HTML (the escape above turned < and > into &lt; &gt;,
+    // so we now reintroduce only the tags we trust).
+    safe = safe
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
       .replace(/`([^`]+?)`/g, '<code>$1</code>')
       .replace(/\n\n/g, '<br><br>')
       .replace(/\n/g, '<br>');
-    say(html, { instant: true });
+    // Also re-enable the HTML emphasis tags Gemini already produced naturally
+    // (system prompt instructs it to use <strong>/<em>/<code>). They got
+    // escaped to &lt;strong&gt;… above, so unescape those specific tags.
+    safe = safe
+      .replace(/&lt;(\/?)(strong|em|code|br)&gt;/g, '<$1$2>');
+    say(safe, { instant: true });
   }
 
   function ask(query) {
@@ -1338,6 +1379,11 @@
   function startProactive() {
     if (proactiveTimer) return;
     proactiveTimer = setInterval(proactive, 30000);
+    // Stop ticking when the user navigates away — prevents the timer
+    // from outliving the page and burning CPU after a soft-nav close.
+    window.addEventListener('beforeunload', function () {
+      if (proactiveTimer) { clearInterval(proactiveTimer); proactiveTimer = null; }
+    });
   }
 
   // ===== Onboarding tour =====
@@ -1491,11 +1537,97 @@
     document.head.appendChild(s);
   }
 
+  // ===== Feature: Cmd+K / Ctrl+K opens Shelly from anywhere =====
+  function wireShortcuts() {
+    document.addEventListener('keydown', function (e) {
+      // Cmd+K (macOS) or Ctrl+K (Windows/Linux) toggles Shelly's panel
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (!opened) toggle();
+        setTimeout(function () { if (inputEl) inputEl.focus(); }, 80);
+      }
+      // Slash key opens Shelly when not already typing in an input
+      const t = e.target;
+      const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+      if (e.key === '/' && !typing && !opened) {
+        e.preventDefault();
+        toggle();
+        setTimeout(function () { if (inputEl) { inputEl.value = '/'; inputEl.focus(); inputEl.setSelectionRange(1, 1); } }, 80);
+      }
+    });
+  }
+
+  // ===== Feature: Streak counter (consecutive days active) =====
+  function bumpStreak() {
+    if (!window.db) return 0;
+    const d = db.get();
+    const today = new Date().toISOString().slice(0, 10);
+    const last = d.shellyPrefs && d.shellyPrefs.lastActiveDay;
+    let streak = (d.shellyPrefs && d.shellyPrefs.streak) || 0;
+    if (last === today) return streak;
+    if (last) {
+      const lastDate = new Date(last + 'T00:00:00');
+      const todayDate = new Date(today + 'T00:00:00');
+      const diffDays = Math.round((todayDate - lastDate) / 86400000);
+      streak = diffDays === 1 ? streak + 1 : 1;
+    } else {
+      streak = 1;
+    }
+    db.update(function (data) {
+      data.shellyPrefs = data.shellyPrefs || {};
+      data.shellyPrefs.lastActiveDay = today;
+      data.shellyPrefs.streak = streak;
+    });
+    return streak;
+  }
+  function getStreak() { return (window.db && db.getPref && db.getPref('streak')) || 0; }
+
+  // ===== Feature: Daily morning briefing =====
+  // Auto-shows /summary the first time Shelly opens each day (post-onboarding).
+  function maybeMorningBriefing() {
+    if (!window.db) return;
+    if (db.isFirstLogin && db.isFirstLogin()) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const lastBriefing = db.getPref && db.getPref('lastBriefingDay');
+    if (lastBriefing === today) return;
+    db.update(function (data) {
+      data.shellyPrefs = data.shellyPrefs || {};
+      data.shellyPrefs.lastBriefingDay = today;
+    });
+    const streak = getStreak();
+    const hr = new Date().getHours();
+    const greet = hr < 5 ? 'still up?' : hr < 12 ? 'good morning ☀️' : hr < 17 ? 'good afternoon' : hr < 21 ? 'good evening 🌙' : 'late-night session?';
+    const streakLine = streak > 1 ? '<br><strong>🔥 ' + streak + '-day streak</strong> — you\'re on fire!' : '';
+    setTimeout(function () {
+      open();
+      say(greet + ', ' + ((db.get().me.name || 'Teach').split(' ')[0]) + '!' + streakLine + '<br><br>Here\'s your day at a glance:<br><br>' + buildSummary(), {
+        actions: [
+          { label: 'Open Chats', onClick: function () { window.location.href = '14-chats.html'; } },
+          { label: 'Open Progress', onClick: function () { window.location.href = '13-progress-reports.html'; } },
+          { label: 'Dismiss' },
+        ],
+      });
+    }, 1400);
+  }
+
+  // ===== Feature: Search inside Shelly's chat history =====
+  function searchHistory(query) {
+    if (!window.db) return [];
+    const q = String(query || '').toLowerCase().trim();
+    if (!q) return [];
+    return (db.get().shellyChat || []).filter(function (m) {
+      return m.text && m.text.toLowerCase().replace(/<[^>]+>/g, '').indexOf(q) >= 0;
+    });
+  }
+
   function init() {
     injectStyles();
     build();
     startProactive();
+    wireShortcuts();
+    bumpStreak();
     maybeOnboard();
+    maybeMorningBriefing();
     loadGemini();
   }
 

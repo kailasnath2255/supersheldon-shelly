@@ -133,7 +133,11 @@ document.getElementById('add-btn').addEventListener('click', function () {
   );
 });
 document.querySelectorAll('#grid .card').forEach(function (c) {
-  c.addEventListener('click', function () { window.location.href = '6-course-home.html'; });
+  c.addEventListener('click', function () {
+    // Stash the chosen course name so the detail page can pivot to it later
+    try { sessionStorage.setItem('ss_active_course', c.dataset.name || ''); } catch (e) {}
+    window.location.href = '6-course-home.html';
+  });
 });
 window.addEventListener('load', function () {
   shelly.suggest(['Which course is lagging?', 'Schedule a new cohort', 'Top up credits']);

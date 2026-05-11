@@ -32,8 +32,12 @@
   const COURSE_KIDS = new Set(['courses', '1on1', 'group', 'recorded', 'course-home', 'course-content']);
 
   function render() {
-    const root = document.getElementById('sidebar-root');
+    // Persistent host element — find it once and keep it. We render INTO it
+    // (innerHTML) so the element itself survives across re-renders triggered
+    // by db.subscribe(). This is what makes live badge updates actually work.
+    let root = document.getElementById('sidebar-root') || document.querySelector('[data-sidebar-host]');
     if (!root) return;
+    if (root.id === 'sidebar-root') { root.removeAttribute('id'); root.setAttribute('data-sidebar-host', ''); }
     const active = document.body.dataset.page || '';
 
     let html = '<div class="sidebar">';
@@ -71,9 +75,10 @@
     html += '</a>';
     html += '</div>';
 
-    root.outerHTML = html;
+    root.innerHTML = html;
 
-    // Re-render when db changes (badges update live across the app)
+    // Re-render when db changes (badges update live across the app).
+    // Subscribe ONCE per page load (the guard prevents listener accumulation).
     if (window.db && !window._sidebarSubbed) {
       window._sidebarSubbed = true;
       db.subscribe(function () { render(); });

@@ -166,7 +166,20 @@
     localStorage.setItem(KEY, JSON.stringify(seed));
     return seed;
   }
-  function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+  function save(d) {
+    try { localStorage.setItem(KEY, JSON.stringify(d)); }
+    catch (e) {
+      // Quota exceeded — trim Shelly's persistent chat first (biggest variable),
+      // then retry. If still failing, log and continue with stale localStorage
+      // but a live in-memory cache (degraded but functional).
+      try {
+        if (d.shellyChat && d.shellyChat.length > 20) d.shellyChat = d.shellyChat.slice(-20);
+        localStorage.setItem(KEY, JSON.stringify(d));
+      } catch (e2) {
+        console.warn('[db] localStorage save failed:', e2 && e2.message);
+      }
+    }
+  }
 
   const subs = new Set();
   function notify(d) { subs.forEach(function (fn) { try { fn(d); } catch (e) { console.error(e); } }); }

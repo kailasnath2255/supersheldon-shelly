@@ -99,7 +99,7 @@ input{font:inherit;}
 <script>
 const email = document.getElementById('email-input');
 const btn = document.getElementById('get-code-btn');
-const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 function refresh() {
   const ok = re.test(email.value.trim());
   btn.disabled = !ok;
