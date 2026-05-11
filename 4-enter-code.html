@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Enter Code – Super Sheldon</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a2e;background:#fff;}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit;}
+input{font:inherit;}
+</style>
+
+<style>
+.login-page{min-height:100vh;background:#efefef;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.login-card{background:#fff;border-radius:4px;padding:36px 32px;width:340px;position:relative;z-index:2;box-shadow:0 2px 16px rgba(0,0,0,0.08);}
+.login-card h2{text-align:center;font-size:20px;font-weight:600;margin-bottom:20px;color:#1a1a2e;}
+.login-btn{width:100%;padding:11px 16px;border-radius:6px;border:1.5px solid #d1d5db;font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;background:#fff;color:#1a1a2e;transition:border-color 150ms;margin-bottom:10px;text-decoration:none;}
+.login-btn:hover{border-color:#9ca3af;background:#fafafa;}
+.or-divider{text-align:center;color:#9ca3af;font-size:13px;margin:12px 0;}
+.create-account{text-align:center;margin-top:16px;font-size:13px;color:#374151;}
+.create-account a{color:#1a1a2e;font-weight:600;text-decoration:none;}
+.powered-by{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:12px;color:#9ca3af;}
+.powered-by a{color:#6b7280;text-decoration:underline;}
+.back-row{display:flex;align-items:center;gap:8px;margin-bottom:20px;cursor:pointer;color:#1a1a2e;text-decoration:none;}
+.back-row h2{margin:0;text-align:left;}
+.field-label{font-size:13px;color:#374151;margin-bottom:6px;font-weight:500;}
+.input-wrap{border:1.5px solid #d1d5db;border-radius:6px;overflow:hidden;display:flex;align-items:center;margin-bottom:14px;background:#fff;transition:border-color 150ms;}
+.input-wrap:focus-within{border-color:#6b7280;}
+.input-wrap input{flex:1;padding:10px 12px;border:none;outline:none;font-size:14px;color:#1a1a2e;background:transparent;}
+.input-wrap input::placeholder{color:#9ca3af;}
+.flag-prefix{padding:10px 10px 10px 12px;font-size:13px;color:#374151;font-weight:500;display:flex;align-items:center;gap:4px;border-right:1.5px solid #d1d5db;white-space:nowrap;}
+.get-code-btn{width:100%;padding:12px;border-radius:6px;background:#1e2130;color:#fff;font-size:14px;font-weight:600;border:none;cursor:pointer;}
+.get-code-btn:hover{background:#2d3148;}
+.otp-note{font-size:13px;color:#6b7280;margin-bottom:20px;}
+.otp-note span{color:#1a1a2e;font-weight:500;}
+.otp-boxes{display:flex;gap:12px;margin-bottom:18px;justify-content:center;}
+.otp-box{width:54px;height:54px;border:1.5px solid #d1d5db;border-radius:8px;font-size:20px;font-weight:600;text-align:center;outline:none;color:#1a1a2e;background:#fff;padding:0;transition:border-color 150ms,box-shadow 150ms;}
+.otp-box:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.15);}
+.otp-box[value]:not([value=""]){background:#f9fafb;}
+.resend-row{font-size:13px;color:#374151;margin-bottom:20px;}
+.resend-row a{color:#2563eb;font-weight:500;text-decoration:none;}
+.verify-btn{width:100%;padding:12px;border-radius:6px;background:#9ca3af;color:#fff;font-size:14px;font-weight:600;border:none;cursor:pointer;}
+/* bg illustration shapes */
+.illus{position:absolute;pointer-events:none;}
+</style>
+</head>
+<body>
+
+
+<!-- pencil -->
+<svg class="illus" style="left:200px;bottom:120px;opacity:0.6;" width="60" height="200" viewBox="0 0 30 120"><rect x="10" y="10" width="10" height="80" fill="#9ca3af" rx="2"/><polygon points="10,90 20,90 15,115" fill="#6b7280"/><rect x="10" y="4" width="10" height="8" fill="#f59e0b" rx="1"/></svg>
+<!-- books stack -->
+<svg class="illus" style="left:240px;bottom:100px;opacity:0.55;" width="90" height="60" viewBox="0 0 90 60"><rect x="0" y="30" width="90" height="12" rx="3" fill="#9ca3af"/><rect x="5" y="18" width="80" height="12" rx="3" fill="#6b7280"/><rect x="10" y="6" width="70" height="12" rx="3" fill="#4b5563"/></svg>
+<!-- globe -->
+<svg class="illus" style="right:120px;top:80px;opacity:0.45;" width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="30" fill="none" stroke="#6b7280" stroke-width="2"/><ellipse cx="35" cy="35" rx="14" ry="30" fill="none" stroke="#6b7280" stroke-width="1.5"/><line x1="6" y1="35" x2="64" y2="35" stroke="#6b7280" stroke-width="1.5"/><line x1="35" y1="5" x2="35" y2="65" stroke="#6b7280" stroke-width="1.5"/></svg>
+<!-- asterisk -->
+<svg class="illus" style="right:100px;top:140px;opacity:0.4;" width="32" height="32" viewBox="0 0 32 32"><line x1="16" y1="2" x2="16" y2="30" stroke="#6b7280" stroke-width="2.5"/><line x1="2" y1="16" x2="30" y2="16" stroke="#6b7280" stroke-width="2.5"/><line x1="5" y1="5" x2="27" y2="27" stroke="#6b7280" stroke-width="2.5"/><line x1="27" y1="5" x2="5" y2="27" stroke="#6b7280" stroke-width="2.5"/></svg>
+<!-- person left -->
+<svg class="illus" style="left:140px;bottom:60px;opacity:0.5;" width="36" height="70" viewBox="0 0 36 70"><circle cx="18" cy="8" r="7" fill="#6b7280"/><line x1="18" y1="15" x2="18" y2="45" stroke="#6b7280" stroke-width="3"/><line x1="18" y1="25" x2="6" y2="35" stroke="#6b7280" stroke-width="2.5"/><line x1="18" y1="25" x2="30" y2="35" stroke="#6b7280" stroke-width="2.5"/><line x1="18" y1="45" x2="10" y2="65" stroke="#6b7280" stroke-width="2.5"/><line x1="18" y1="45" x2="26" y2="65" stroke="#6b7280" stroke-width="2.5"/></svg>
+<!-- person right -->
+<svg class="illus" style="right:140px;bottom:60px;opacity:0.5;" width="36" height="70" viewBox="0 0 36 70"><circle cx="18" cy="8" r="7" fill="#6b7280"/><line x1="18" y1="15" x2="18" y2="45" stroke="#6b7280" stroke-width="3"/><line x1="18" y1="45" x2="10" y2="65" stroke="#6b7280" stroke-width="2.5"/><line x1="18" y1="45" x2="26" y2="65" stroke="#6b7280" stroke-width="2.5"/></svg>
+<!-- triangle / mountain -->
+<svg class="illus" style="left:80px;bottom:80px;opacity:0.45;" width="50" height="70" viewBox="0 0 50 70"><polygon points="25,5 50,65 0,65" fill="#9ca3af"/></svg>
+<!-- flask -->
+<svg class="illus" style="left:100px;bottom:120px;opacity:0.5;" width="30" height="60" viewBox="0 0 30 60"><path d="M10 5 L10 25 L2 50 Q0 55 5 58 L25 58 Q30 55 28 50 L20 25 L20 5 Z" fill="#d1d5db" stroke="#9ca3af" stroke-width="1.5"/><rect x="8" y="3" width="14" height="4" rx="1" fill="#9ca3af"/></svg>
+<!-- arch right -->
+<svg class="illus" style="right:80px;bottom:60px;opacity:0.4;" width="80" height="100" viewBox="0 0 80 100"><path d="M10 100 L10 50 Q10 10 40 10 Q70 10 70 50 L70 100" fill="none" stroke="#9ca3af" stroke-width="2.5"/></svg>
+<!-- plus top-left -->
+<svg class="illus" style="left:80px;top:100px;opacity:0.35;" width="24" height="24" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22" stroke="#9ca3af" stroke-width="2.5"/><line x1="2" y1="12" x2="22" y2="12" stroke="#9ca3af" stroke-width="2.5"/></svg>
+<!-- plus bottom-right -->
+<svg class="illus" style="right:60px;bottom:120px;opacity:0.35;" width="24" height="24" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22" stroke="#9ca3af" stroke-width="2.5"/><line x1="2" y1="12" x2="22" y2="12" stroke="#9ca3af" stroke-width="2.5"/></svg>
+<!-- DNA helix -->
+<svg class="illus" style="right:170px;bottom:60px;opacity:0.4;" width="24" height="100" viewBox="0 0 24 100"><path d="M12 0 C20 10 4 20 12 30 C20 40 4 50 12 60 C20 70 4 80 12 90 C20 100 4 100 12 100" fill="none" stroke="#9ca3af" stroke-width="2"/><path d="M12 0 C4 10 20 20 12 30 C4 40 20 50 12 60 C4 70 20 80 12 90 C4 100 20 100 12 100" fill="none" stroke="#9ca3af" stroke-width="2"/></svg>
+<!-- leaf/plant -->
+<svg class="illus" style="left:60px;bottom:55px;opacity:0.45;" width="50" height="40" viewBox="0 0 50 40"><path d="M5 38 C5 38 10 10 30 5 C30 5 15 20 25 30" fill="#9ca3af"/><path d="M25 38 C25 38 40 10 20 3" fill="#6b7280"/><line x1="15" y1="38" x2="15" y2="20" stroke="#6b7280" stroke-width="1.5"/></svg>
+<!-- circle outline -->
+<svg class="illus" style="left:160px;bottom:100px;opacity:0.3;" width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="none" stroke="#9ca3af" stroke-width="1.5"/></svg>
+
+<div class="login-page">
+  <div class="login-card" style="padding:28px 32px;">
+    <a class="back-row" id="back-link" href="2-login-phone.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+      <h2>Enter Code</h2>
+    </a>
+    <p class="otp-note">Code sent to <span id="ident">+91 7324962039</span></p>
+    <div class="otp-boxes">
+      <input class="otp-box" maxlength="1" inputmode="numeric" autocomplete="one-time-code" value="2">
+      <input class="otp-box" maxlength="1" inputmode="numeric" value="4">
+      <input class="otp-box" maxlength="1" inputmode="numeric" value="7">
+      <input class="otp-box" maxlength="1" inputmode="numeric" value="2">
+    </div>
+    <p class="resend-row">Haven't received the Code? <a href="#" id="resend">Resend Code (<span id="timer">28</span>)</a></p>
+    <button id="verify-btn" class="verify-btn">Verify</button>
+  </div>
+  <div class="powered-by">Powered by Wise &#8211; <a href="#">Tutor Management Software</a></div>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+const { method, identifier } = app.getIdentifier();
+if (identifier) document.getElementById('ident').textContent = identifier;
+document.getElementById('back-link').href = method === 'email' ? '3-login-email.html' : '2-login-phone.html';
+
+const boxes = Array.from(document.querySelectorAll('.otp-box'));
+const verify = document.getElementById('verify-btn');
+function code() { return boxes.map(b => b.value).join(''); }
+function refresh() {
+  const full = code().length === boxes.length;
+  verify.style.background = full ? '#1e2130' : '#9ca3af';
+  verify.style.cursor = full ? 'pointer' : 'not-allowed';
+  verify.disabled = !full;
+}
+refresh();
+
+boxes.forEach(function (box, i) {
+  box.addEventListener('input', function () {
+    box.value = box.value.replace(/\D/g, '').slice(0, 1);
+    if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+    refresh();
+  });
+  box.addEventListener('keydown', function (e) {
+    if (e.key === 'Backspace' && !box.value && i > 0) {
+      boxes[i - 1].focus();
+      boxes[i - 1].value = '';
+      refresh();
+    }
+  });
+  box.addEventListener('paste', function (e) {
+    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+    if (!text) return;
+    e.preventDefault();
+    text.split('').slice(0, boxes.length).forEach((d, idx) => { boxes[idx].value = d; });
+    (boxes[Math.min(text.length, boxes.length - 1)] || boxes[0]).focus();
+    refresh();
+  });
+});
+boxes[0].focus();
+
+verify.addEventListener('click', function () {
+  if (verify.disabled) return;
+  // Mark as a fresh first-time sign-in so Shelly runs the onboarding tour
+  if (window.db) {
+    db.update(function (d) { d.auth.isFirstLogin = true; d.auth.onboardingDone = false; d.shellyChat = []; });
+  }
+  app.setAuthed(true);
+  window.location.href = '5-classes.html';
+});
+
+// Resend countdown
+const timerEl = document.getElementById('timer');
+const resend = document.getElementById('resend');
+let secs = 28;
+resend.style.pointerEvents = 'none';
+resend.style.opacity = '0.6';
+const tick = setInterval(function () {
+  secs -= 1;
+  if (secs <= 0) {
+    clearInterval(tick);
+    resend.parentNode.innerHTML = 'Haven\'t received the Code? <a href="#" id="resend">Resend Code</a>';
+    document.getElementById('resend').addEventListener('click', function (e) {
+      e.preventDefault();
+      app.toast('Code resent');
+    });
+    return;
+  }
+  timerEl.textContent = secs;
+}, 1000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+# OS junk
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Editors
+.vscode/
+.idea/
+
+# Node / build tooling (if you ever add it)
+node_modules/
+dist/
+.cache/
+
+# Local server logs (python -m http.server)
+*.log

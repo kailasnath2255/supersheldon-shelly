@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Notifications – Super Sheldon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+.notif-group{margin-bottom:24px;}
+.notif-group h3{font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.notif{display:flex;gap:12px;padding:14px 16px;background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;margin-bottom:8px;align-items:flex-start;cursor:pointer;transition:all 150ms;position:relative;}
+.notif:hover{border-color:#7c3aed;}
+.notif.unread{background:#faf5ff;border-color:#ddd6fe;}
+.notif.unread::before{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:#7c3aed;}
+.notif-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.notif-icon.green{background:#dcfce7;} .notif-icon.red{background:#fee2e2;} .notif-icon.blue{background:#dbeafe;} .notif-icon.purple{background:#ede9fe;} .notif-icon.yellow{background:#fef3c7;}
+.notif-body{flex:1;}
+.notif-body h5{font-size:13.5px;font-weight:600;margin-bottom:3px;}
+.notif-body p{font-size:12.5px;color:#6b7280;line-height:1.45;}
+.notif-time{font-size:11px;color:#9ca3af;flex-shrink:0;}
+.empty-state{text-align:center;padding:60px 24px;color:#6b7280;}
+.empty-state .icon{font-size:48px;margin-bottom:12px;}
+</style>
+</head>
+<body data-page="notifications">
+<div class="app-layout">
+  <div id="sidebar-root"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Notifications <span id="unread-badge" class="tag purple" style="margin-left:6px;font-size:11px;"></span></h1>
+        <p>Everything that needs your attention — top of the list first.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn outline" id="mark-all">Mark all as read</button>
+        <button class="btn outline" id="settings">⚙ Settings</button>
+      </div>
+    </div>
+
+    <div class="section" id="list-section">
+      <div id="notif-list"></div>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="sidebar.js"></script>
+<script src="app.js"></script>
+<script src="shelly.js"></script>
+<script>
+const ROUTES = {
+  store: '15-store.html',
+  chats: '14-chats.html',
+  course: '6-course-home.html',
+  session: '8-session-modal.html',
+  progress: '13-progress-reports.html',
+  analytics: '16-analytics.html',
+  users: '12-users.html',
+};
+
+function render() {
+  const list = document.getElementById('notif-list');
+  const all = db.get().notifications;
+  const groups = { today: [], yesterday: [], earlier: [] };
+  all.forEach(function (n) { (groups[n.bucket] || groups.earlier).push(n); });
+
+  const unreadCount = db.unreadNotifCount();
+  const badge = document.getElementById('unread-badge');
+  badge.textContent = unreadCount ? unreadCount + ' unread' : 'All caught up';
+  badge.className = 'tag ' + (unreadCount ? 'purple' : 'green');
+
+  if (!all.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">🌴</div><h3>Nothing to see here</h3><p>You\'re all caught up.</p></div>';
+    return;
+  }
+
+  list.innerHTML = ['today', 'yesterday', 'earlier'].map(function (bucket) {
+    const items = groups[bucket];
+    if (!items.length) return '';
+    const label = { today: 'Today', yesterday: 'Yesterday', earlier: 'Earlier' }[bucket];
+    return '<div class="notif-group"><h3>' + label + '</h3>' + items.map(function (n) {
+      return '<div class="notif ' + (n.read ? '' : 'unread') + '" data-id="' + n.id + '" data-action="' + (n.action || '') + '">' +
+        '<div class="notif-icon ' + (n.tone || 'blue') + '">' + n.icon + '</div>' +
+        '<div class="notif-body"><h5>' + n.title + '</h5><p>' + n.body + '</p></div>' +
+        '<div class="notif-time">' + n.time + '</div></div>';
+    }).join('') + '</div>';
+  }).join('');
+
+  list.querySelectorAll('.notif').forEach(function (el) {
+    el.addEventListener('click', function () {
+      db.markNotificationRead(el.dataset.id);
+      const r = ROUTES[el.dataset.action];
+      if (r) window.location.href = r;
+    });
+  });
+}
+
+document.getElementById('mark-all').addEventListener('click', function () {
+  db.markAllNotificationsRead();
+  app.toast('All caught up ✨');
+});
+document.getElementById('settings').addEventListener('click', function () {
+  const prefs = db.get().settings.notifications;
+  app.modal('Notification preferences',
+    '<p style="font-size:12.5px;color:#6b7280;margin-bottom:14px;">Choose how you want to be alerted.</p>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;">' +
+      ['email','sms','push'].map(function (k) {
+        const label = { email: '📧 Email', sms: '💬 SMS', push: '🔔 Push notifications' }[k];
+        return '<label style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:8px;cursor:pointer;">' +
+          '<span style="font-size:13px;font-weight:600;color:#1a1a2e;">' + label + '</span>' +
+          '<input type="checkbox" data-pref="' + k + '" ' + (prefs[k] ? 'checked' : '') + ' style="width:18px;height:18px;cursor:pointer;accent-color:#7c3aed;"></label>';
+      }).join('') +
+    '</div>',
+    { actions: [
+      { label: 'Cancel' },
+      { label: 'Save', primary: true, onClick: function (body) {
+        body.querySelectorAll('[data-pref]').forEach(function (cb) {
+          db.setSetting('notifications.' + cb.dataset.pref, cb.checked);
+        });
+        app.toast('Preferences saved');
+      } },
+    ] }
+  );
+});
+
+db.subscribe(render);
+render();
+
+window.addEventListener('load', function () {
+  shelly.context({ page: 'notifications' });
+  shelly.suggest(["What's most urgent?", 'Mark all read', "Today's sessions"]);
+  const u = db.unreadNotifCount();
+  if (u > 0) {
+    shelly.say("You have <strong>" + u + " unread notification(s)</strong>. The most urgent: <em>" + db.unreadNotifs()[0].title + "</em>. Want me to open it?", {
+      delay: 700,
+      actions: [
+        { label: 'Open it', primary: true, onClick: function () { const first = db.unreadNotifs()[0]; if (first) { db.markNotificationRead(first.id); const r = ROUTES[first.action]; if (r) window.location.href = r; } } },
+        { label: 'Mark all read', action: 'mark-all-read' },
+      ],
+    });
+  } else {
+    shelly.say("Inbox zero! 🎉 Nothing urgent right now.");
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Group Courses – Super Sheldon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body data-page="group">
+<div class="app-layout">
+  <div id="sidebar-root"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Group Courses</h1>
+        <p>Cohort-based classes with multiple learners per session.</p>
+      </div>
+      <div class="page-actions">
+        <div class="search-input">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search" placeholder="Search group courses">
+        </div>
+        <button class="btn primary" id="add-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Group Course
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="card-grid" id="grid">
+        <a class="card" data-name="Math Olympiad Prep">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b);">🧮</div>
+          <div class="card-title">Math Olympiad Prep</div>
+          <div class="card-meta">
+            <span>👥 24 learners</span>
+            <span>📅 Mon &amp; Wed</span>
+            <span class="tag green">Active</span>
+          </div>
+        </a>
+        <a class="card" data-name="Coding Club – Python Beginners">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#bfdbfe,#3b82f6);">💻</div>
+          <div class="card-title">Coding Club – Python Beginners</div>
+          <div class="card-meta">
+            <span>👥 18 learners</span>
+            <span>📅 Tue &amp; Thu</span>
+            <span class="tag green">Active</span>
+          </div>
+        </a>
+        <a class="card" data-name="Public Speaking Bootcamp">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#fbcfe8,#ec4899);">🎤</div>
+          <div class="card-title">Public Speaking Bootcamp</div>
+          <div class="card-meta">
+            <span>👥 12 learners</span>
+            <span>📅 Sat</span>
+            <span class="tag yellow">Low engagement</span>
+          </div>
+        </a>
+        <a class="card" data-name="Junior Robotics">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#bbf7d0,#22c55e);">🤖</div>
+          <div class="card-title">Junior Robotics</div>
+          <div class="card-meta">
+            <span>👥 9 learners</span>
+            <span>📅 Sun</span>
+            <span class="tag green">Active</span>
+          </div>
+        </a>
+        <a class="card" data-name="English Conversation Club">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#ddd6fe,#8b5cf6);">🗣️</div>
+          <div class="card-title">English Conversation Club</div>
+          <div class="card-meta">
+            <span>👥 31 learners</span>
+            <span>📅 Daily</span>
+            <span class="tag blue">Top-rated</span>
+          </div>
+        </a>
+        <a class="card" data-name="Science Curiosity Lab">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#a7f3d0,#10b981);">🔬</div>
+          <div class="card-title">Science Curiosity Lab</div>
+          <div class="card-meta">
+            <span>👥 16 learners</span>
+            <span>📅 Fri</span>
+            <span class="tag green">Active</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="sidebar.js"></script>
+<script src="app.js"></script>
+<script src="shelly.js"></script>
+<script>
+document.getElementById('search').addEventListener('input', function (e) {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('#grid .card').forEach(function (c) {
+    c.style.display = !q || c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+document.getElementById('add-btn').addEventListener('click', function () {
+  app.modal('Create a group course',
+    app.field('Course name', { id: 'gc-name', placeholder: 'e.g. Public Speaking Bootcamp' }) +
+    app.field('Topic', { id: 'gc-topic', placeholder: 'e.g. Math, Coding, Language' }) +
+    app.field('Schedule', { id: 'gc-schedule', placeholder: 'e.g. Mon & Wed, 6 PM' }) +
+    app.field('Capacity (learners)', { id: 'gc-cap', type: 'number', placeholder: '20', value: '20' }),
+    { actions: [
+      { label: 'Cancel' },
+      { label: 'Create course', primary: true, onClick: function (body) {
+        const name = body.querySelector('#gc-name').value.trim();
+        if (!name) { app.toast('Course name is required'); return false; }
+        const ICONS = ['🎓','💻','🧮','🤖','🗣️','📚','🔬','🎤','🎨','📐'];
+        const COLORS = ['#ede9fe','#dbeafe','#fef3c7','#dcfce7','#fce7f3','#fef9c3'];
+        db.update(function (d) {
+          d.courses.unshift({
+            id: 'c-' + Date.now(), name: name, type: 'group',
+            topic: body.querySelector('#gc-topic').value || 'General',
+            icon: ICONS[Math.floor(Math.random()*ICONS.length)],
+            color: COLORS[Math.floor(Math.random()*COLORS.length)],
+            studentCount: 0, status: 'active',
+            schedule: body.querySelector('#gc-schedule').value || 'TBD',
+            rating: 5.0,
+          });
+        });
+        app.toast('"' + name + '" created');
+        if (window.shelly) shelly.say('Created <strong>' + name + '</strong>! 🎉 Invite learners from the <em>Users</em> tab when you\'re ready.');
+        setTimeout(function(){window.location.reload();}, 600);
+      } },
+    ] }
+  );
+});
+document.querySelectorAll('#grid .card').forEach(function (c) {
+  c.addEventListener('click', function () { window.location.href = '6-course-home.html'; });
+});
+window.addEventListener('load', function () {
+  shelly.suggest(['Which course is lagging?', 'Schedule a new cohort', 'Top up credits']);
+  shelly.say("You have <strong>6 active group courses</strong> with 110 total learners. <em>Public Speaking Bootcamp</em> is showing <strong>low engagement</strong> this week — want me to suggest a re-engagement plan? 👋", {
+    delay: 700,
+    actions: [
+      { label: 'Yes, suggest', primary: true, onClick: function () {
+        shelly.say('Quick wins: <strong>1)</strong> send a recap of last session to the cohort, <strong>2)</strong> add a poll to the next live, <strong>3)</strong> spotlight one learner each week. Want me to draft the recap message?');
+      } },
+      { label: 'Not now' },
+    ],
+  });
+});
+</script>
+</body>
+</html>

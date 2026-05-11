@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Super Sheldon</title>
+<script>
+  // Route to the app or to login based on auth state.
+  (function () {
+    try {
+      const s = JSON.parse(localStorage.getItem('supersheldon') || '{}');
+      window.location.replace(s.authed ? '5-classes.html' : '1-login.html');
+    } catch (e) {
+      window.location.replace('1-login.html');
+    }
+  })();
+</script>
+</head>
+<body></body>
+</html>

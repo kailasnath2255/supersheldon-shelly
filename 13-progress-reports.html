@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Progress Reports – Super Sheldon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+.progress-row{display:grid;grid-template-columns:1.6fr 2fr 1fr 1fr auto;gap:14px;align-items:center;padding:14px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:background 120ms;}
+.progress-row:hover{background:#fafafa;}
+.progress-row .stat{font-size:12px;color:#6b7280;}
+.progress-row .stat strong{display:block;font-size:14px;color:#1a1a2e;font-weight:700;}
+.progress-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;}
+.progress-pill.green{background:#dcfce7;color:#166534;} .progress-pill.yellow{background:#fef3c7;color:#92400e;} .progress-pill.red{background:#fee2e2;color:#991b1b;} .progress-pill.gray{background:#f3f4f6;color:#374151;}
+</style>
+</head>
+<body data-page="progress">
+<div class="app-layout">
+  <div id="sidebar-root"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Progress Reports</h1>
+        <p>How your learners are doing across every active course.</p>
+      </div>
+      <div class="page-actions">
+        <div class="search-input">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search" placeholder="Search learners">
+        </div>
+        <button class="btn outline" id="export">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="kpi-grid" style="margin-bottom:18px;" id="kpis"></div>
+      <div style="border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;" id="rows"></div>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="sidebar.js"></script>
+<script src="app.js"></script>
+<script src="shelly.js"></script>
+<script>
+let searchQuery = '';
+
+function statusPill(p) {
+  if (p == null) return '<span class="progress-pill gray">New</span>';
+  if (p >= 80) return '<span class="progress-pill green">On Track</span>';
+  if (p >= 60) return '<span class="progress-pill green">On Track</span>';
+  if (p >= 50) return '<span class="progress-pill yellow">Falling Behind</span>';
+  return '<span class="progress-pill red">At Risk</span>';
+}
+
+function progressBar(p) {
+  const colour = p == null || p >= 60 ? 'linear-gradient(90deg,#7c3aed,#2563eb)' : p >= 50 ? 'linear-gradient(90deg,#f59e0b,#f97316)' : 'linear-gradient(90deg,#ef4444,#f97316)';
+  const valColour = p == null || p >= 60 ? '#15803d' : p >= 50 ? '#92400e' : '#b91c1c';
+  return '<div><div style="font-size:11px;color:#6b7280;margin-bottom:5px;display:flex;justify-content:space-between;"><span>Completion</span><strong style="color:' + valColour + ';">' + (p != null ? p + '%' : '—') + '</strong></div><div class="progress"><span style="width:' + (p || 0) + '%;background:' + colour + ';"></span></div></div>';
+}
+
+function courseLabel(student) {
+  const c = student.courseId ? db.findCourse(student.courseId) : null;
+  return c ? (c.topic + ' • ' + c.code) : (student.role === 'student' ? '1:1 Course' : '');
+}
+
+function render() {
+  const students = db.students().filter(function (s) { return !searchQuery || s.name.toLowerCase().includes(searchQuery); });
+  const all = db.students();
+  const avg = all.length ? Math.round(all.reduce(function (a, s) { return a + (s.progress || 0); }, 0) / all.length) : 0;
+  const sessionsAttended = all.reduce(function (a, s) { return a + (s.sessionsAttended || 0); }, 0);
+  const atRisk = db.atRisk().length;
+  const onTrack = all.filter(function (s) { return (s.progress || 0) >= 60; }).length;
+
+  document.getElementById('kpis').innerHTML =
+    '<div class="kpi"><h4>Avg. Completion</h4><div class="value">' + avg + '%</div><div class="delta up">▲ 4% this week</div></div>' +
+    '<div class="kpi"><h4>Sessions Attended</h4><div class="value">' + sessionsAttended + '</div></div>' +
+    '<div class="kpi"><h4>At Risk</h4><div class="value" style="color:#b91c1c;">' + atRisk + '</div><div class="delta">below 50% completion</div></div>' +
+    '<div class="kpi"><h4>On Track</h4><div class="value" style="color:#15803d;">' + onTrack + '</div></div>';
+
+  const rows = document.getElementById('rows');
+  if (!students.length) {
+    rows.innerHTML = '<div style="padding:40px;text-align:center;color:#9ca3af;">No learners match your search.</div>';
+    return;
+  }
+  rows.innerHTML = students.map(function (s) {
+    return '<div class="progress-row" data-id="' + s.id + '">' +
+      '<div class="avatar-row"><div class="avatar" style="background:' + s.color + ';">' + s.avatar + '</div><div class="avatar-row-info"><h5>' + s.name + '</h5><p>' + courseLabel(s) + '</p></div></div>' +
+      progressBar(s.progress) +
+      '<div class="stat"><strong>' + (s.sessionsAttended || 0) + '/' + (s.sessionsTotal || 0) + '</strong>Sessions</div>' +
+      '<div class="stat"><strong>' + (s.active || '—') + '</strong>Last active</div>' +
+      statusPill(s.progress) +
+      '</div>';
+  }).join('');
+  rows.querySelectorAll('.progress-row').forEach(function (r) {
+    r.addEventListener('click', function () {
+      const s = db.findUser(r.dataset.id);
+      if (!s) return;
+      const body =
+        '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">' +
+          '<div class="avatar" style="background:' + s.color + ';width:54px;height:54px;font-size:22px;">' + s.avatar + '</div>' +
+          '<div><div style="font-size:16px;font-weight:700;">' + s.name + '</div>' +
+          '<div style="font-size:12px;color:#6b7280;">' + (courseLabel(s) || 'Student') + '</div></div></div>' +
+        '<div style="margin-bottom:14px;">' + progressBar(s.progress) + '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12.5px;color:#374151;background:#f9fafb;padding:12px;border-radius:8px;">' +
+          '<div><strong>Sessions</strong><br>' + (s.sessionsAttended || 0) + '/' + (s.sessionsTotal || 0) + '</div>' +
+          '<div><strong>Last active</strong><br>' + (s.active || '—') + '</div>' +
+          '<div><strong>Parent</strong><br>' + (s.parent || '—') + '</div>' +
+          '<div><strong>City</strong><br>' + (s.city || '—') + '</div>' +
+        '</div>' +
+        (s.progress < 50
+          ? '<div style="margin-top:14px;padding:12px;background:#fee2e2;border-radius:8px;font-size:12.5px;color:#991b1b;">⚠️ This learner is <strong>at risk</strong>. Consider a 1:1 check-in or a parent nudge.</div>'
+          : '');
+      app.modal(s.name, body, {
+        width: 460,
+        actions: [
+          { label: 'Message parent', onClick: function () { window.location.href = '14-chats.html'; } },
+          { label: 'Open course', onClick: function () { window.location.href = '6-course-home.html'; } },
+          { label: 'Done', primary: true },
+        ],
+      });
+    });
+  });
+}
+
+document.getElementById('search').addEventListener('input', function (e) { searchQuery = e.target.value.trim().toLowerCase(); render(); });
+document.getElementById('export').addEventListener('click', function () { app.toast('Exported progress.csv'); });
+
+db.subscribe(render);
+render();
+
+window.addEventListener('load', function () {
+  shelly.context({ page: 'progress' });
+  shelly.suggest(["Who's at risk?", 'Nudge inactive learners', 'Top performers']);
+  const atRisk = db.atRisk();
+  if (atRisk.length) {
+    const names = atRisk.slice(0, 3).map(function (s) { return s.name; }).join(', ');
+    shelly.say("<strong>" + atRisk.length + " learner(s) need your attention:</strong> " + names + ". Want me to schedule a 1:1 check-in with each?", {
+      delay: 700,
+      actions: [
+        { label: 'Schedule check-ins', primary: true, onClick: function () { shelly.say('Drafting invite messages with suggested slots. I\'ll show them in <em>Chats</em> for you to review. 💬'); } },
+        { label: 'Top performers', onClick: function () { shelly.ask('Top performer?'); } },
+      ],
+    });
+  } else {
+    shelly.say('Everyone is on track! 🌟 Want me to find your top performers?');
+  }
+});
+</script>
+</body>
+</html>

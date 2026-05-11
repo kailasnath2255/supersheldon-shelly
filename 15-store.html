@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Store – Super Sheldon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+.balance-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-radius:12px;margin-bottom:20px;}
+.balance-card .label{font-size:12px;opacity:0.85;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
+.balance-card .value{font-size:32px;font-weight:800;line-height:1.1;}
+.balance-card .meta{font-size:13px;opacity:0.85;margin-top:4px;}
+.pack{border:1.5px solid #e5e7eb;border-radius:12px;padding:24px;background:#fff;display:flex;flex-direction:column;gap:14px;transition:all 150ms;}
+.pack:hover{border-color:#7c3aed;transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,0.12);}
+.pack.featured{border-color:#7c3aed;background:linear-gradient(180deg,#faf5ff,#fff);position:relative;}
+.pack.featured::before{content:'Most Popular';position:absolute;top:-10px;right:20px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}
+.pack h3{font-size:16px;font-weight:700;}
+.pack .price{font-size:28px;font-weight:800;color:#1a1a2e;}
+.pack .price small{font-size:13px;color:#6b7280;font-weight:500;}
+.pack ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.pack li{font-size:13px;color:#374151;display:flex;align-items:center;gap:8px;}
+.pack li::before{content:'✓';color:#16a34a;font-weight:700;}
+.addon{display:flex;gap:14px;align-items:center;padding:14px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;transition:border-color 150ms;}
+.addon:hover{border-color:#9ca3af;}
+.addon-icon{width:44px;height:44px;border-radius:8px;background:#f5f3ff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.addon-info{flex:1;}
+.addon-info h5{font-size:14px;font-weight:600;}
+.addon-info p{font-size:12px;color:#6b7280;margin-top:2px;}
+</style>
+</head>
+<body data-page="store">
+<div class="app-layout">
+  <div id="sidebar-root"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Store</h1>
+        <p>Top up credits, unlock add-ons, and grow your tutoring business.</p>
+      </div>
+      <div class="page-actions">
+        <div class="tag purple" id="plan-tag" style="padding:6px 12px;font-size:12px;">💎 Plus plan</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="balance-card">
+        <div>
+          <div class="label">Current balance</div>
+          <div class="value" id="balance-value">— credits</div>
+          <div class="meta" id="balance-meta">Plus plan · renews monthly</div>
+        </div>
+        <button class="btn outline" id="quick-topup" style="background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.3);">⚡ Quick top-up Plus</button>
+      </div>
+
+      <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;">Session Credit Packs</h3>
+      <div class="card-grid">
+        <div class="pack" data-pack="starter">
+          <h3>Starter</h3>
+          <div class="price">₹999 <small>/ 20 credits</small></div>
+          <ul><li>20 session credits</li><li>30-day validity</li><li>Email support</li></ul>
+          <button class="btn outline" data-buy="starter">Buy Starter</button>
+        </div>
+        <div class="pack featured" data-pack="plus">
+          <h3>Plus</h3>
+          <div class="price">₹3,999 <small>/ 100 credits</small></div>
+          <ul><li>100 session credits</li><li>90-day validity</li><li>Priority support + analytics</li><li>Bulk schedule tools</li></ul>
+          <button class="btn primary" data-buy="plus">Buy Plus</button>
+        </div>
+        <div class="pack" data-pack="pro">
+          <h3>Pro</h3>
+          <div class="price">₹9,499 <small>/ 300 credits</small></div>
+          <ul><li>300 session credits</li><li>180-day validity</li><li>Dedicated success manager</li><li>Custom branding</li></ul>
+          <button class="btn outline" data-buy="pro">Buy Pro</button>
+        </div>
+      </div>
+
+      <h3 style="font-size:14px;font-weight:700;margin:32px 0 12px;">Add-ons</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;">
+        <div class="addon"><div class="addon-icon">🎨</div><div class="addon-info"><h5>White-label branding</h5><p>Replace Super Sheldon with your own logo &amp; colours.</p></div><button class="btn outline sm" data-addon="White-label">₹1,999/mo</button></div>
+        <div class="addon"><div class="addon-icon">🌐</div><div class="addon-info"><h5>Custom domain</h5><p>Host your school on yourname.com instead of supersheldon.com</p></div><button class="btn outline sm" data-addon="Custom domain">₹499/mo</button></div>
+        <div class="addon"><div class="addon-icon">📊</div><div class="addon-info"><h5>Advanced analytics</h5><p>Cohort retention, NPS surveys, learner heatmaps.</p></div><button class="btn outline sm" data-addon="Analytics">₹799/mo</button></div>
+        <div class="addon"><div class="addon-icon">🎓</div><div class="addon-info"><h5>Verified certificates</h5><p>Blockchain-backed certificates students can share on LinkedIn.</p></div><button class="btn outline sm" data-addon="Certificates">₹999/mo</button></div>
+      </div>
+
+      <h3 style="font-size:14px;font-weight:700;margin:32px 0 12px;">Recent Purchases</h3>
+      <table class="table">
+        <thead><tr><th>Item</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody id="purchases"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="sidebar.js"></script>
+<script src="app.js"></script>
+<script src="shelly.js"></script>
+<script>
+const PACKS = { starter: 'Starter', plus: 'Plus', pro: 'Pro' };
+
+function render() {
+  const d = db.get();
+  document.getElementById('balance-value').textContent = d.credits.balance + ' credits';
+  document.getElementById('balance-meta').textContent = d.credits.plan + ' plan · ' + (d.credits.balance < 15 ? '⚠️ running low — consider top-up' : 'enough for a few weeks');
+  document.getElementById('plan-tag').textContent = d.credits.planLabel || ('💎 ' + d.credits.plan + ' plan');
+  document.getElementById('purchases').innerHTML = d.purchases.map(function (p) {
+    return '<tr><td>' + p.item + '</td><td>' + p.date + '</td><td>₹' + p.amount.toLocaleString('en-IN') + '</td><td><span class="tag green">' + p.status + '</span></td></tr>';
+  }).join('');
+}
+
+document.querySelectorAll('[data-buy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    const pack = b.dataset.buy;
+    const before = db.get().credits.balance;
+    const result = db.topUp(pack);
+    app.toast('+' + result.credits + ' credits added — new balance ' + db.get().credits.balance);
+    if (window.shelly) shelly.say("Done! ✅ <strong>" + PACKS[pack] + "</strong> pack added. Balance: <strong>" + before + " → " + db.get().credits.balance + "</strong>. Receipt's in your email.");
+  });
+});
+
+document.getElementById('quick-topup').addEventListener('click', function () { document.querySelector('[data-buy="plus"]').click(); });
+
+document.querySelectorAll('[data-addon]').forEach(function (b) {
+  b.addEventListener('click', function () { app.toast('Activating ' + b.dataset.addon + '…'); });
+});
+
+db.subscribe(render);
+render();
+
+window.addEventListener('load', function () {
+  shelly.context({ page: 'store' });
+  shelly.suggest(['Recommend a pack', 'How many credits do I have?', "What's the cheapest plan?"]);
+  const bal = db.get().credits.balance;
+  if (bal < 20) {
+    shelly.say("You're at <strong>" + bal + " credits</strong> on the Plus plan — about " + Math.round(bal / 4) + " weeks at your current pace. Want me to top up the Plus pack now? 💳", {
+      delay: 700,
+      actions: [
+        { label: 'Top up Plus', primary: true, action: 'topup', args: { pack: 'plus' } },
+        { label: 'Just remind me' },
+      ],
+    });
+  } else {
+    shelly.say("Balance is healthy at <strong>" + bal + " credits</strong>. Need a pack recommendation or help with auto top-up?");
+  }
+});
+</script>
+</body>
+</html>

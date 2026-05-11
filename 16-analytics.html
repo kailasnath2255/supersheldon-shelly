@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Analytics – Super Sheldon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+.chart-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:18px;background:#fff;}
+.chart-card h3{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.bar-chart{display:flex;align-items:flex-end;gap:12px;height:200px;padding-bottom:24px;border-bottom:1px solid #e5e7eb;position:relative;}
+.bar{flex:1;background:linear-gradient(180deg,#7c3aed,#2563eb);border-radius:6px 6px 0 0;position:relative;transition:opacity 150ms;cursor:pointer;min-height:8px;}
+.bar:hover{opacity:0.85;}
+.bar .label{position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:11px;color:#6b7280;}
+.bar .val{position:absolute;top:-22px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:#1a1a2e;opacity:0;transition:opacity 150ms;}
+.bar:hover .val{opacity:1;}
+.donut{width:140px;height:140px;border-radius:50%;background:conic-gradient(#7c3aed 0 62%,#3b82f6 62% 82%,#10b981 82% 95%,#f3f4f6 95% 100%);position:relative;flex-shrink:0;}
+.donut::after{content:'';position:absolute;inset:18px;border-radius:50%;background:#fff;}
+.donut-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.donut-label .v{font-size:22px;font-weight:800;}
+.donut-label .l{font-size:10px;color:#6b7280;}
+.legend{display:flex;flex-direction:column;gap:8px;}
+.legend-row{display:flex;align-items:center;gap:8px;font-size:13px;}
+.legend-row .dot{width:10px;height:10px;border-radius:50%;}
+.top-list{display:flex;flex-direction:column;gap:10px;}
+.top-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;background:#fafafa;}
+.top-rank{width:24px;height:24px;border-radius:50%;background:#1e2130;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.top-row.gold .top-rank{background:linear-gradient(135deg,#f59e0b,#d97706);}
+.top-row .info{flex:1;font-size:13px;font-weight:600;}
+.top-row .meta{font-size:12px;color:#6b7280;}
+</style>
+</head>
+<body data-page="analytics">
+<div class="app-layout">
+  <div id="sidebar-root"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Analytics</h1>
+        <p>How your tutoring business is performing this month.</p>
+      </div>
+      <div class="page-actions">
+        <select id="range" class="search-input" style="min-width:140px;padding:6px 10px;border:1.5px solid #e5e7eb;border-radius:6px;font-size:13px;background:#fff;cursor:pointer;">
+          <option>Last 7 days</option>
+          <option selected>Last 30 days</option>
+          <option>Last 90 days</option>
+          <option>This year</option>
+        </select>
+        <button class="btn outline" id="export-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="kpi-grid" style="margin-bottom:18px;">
+        <div class="kpi"><h4>Revenue</h4><div class="value">₹2,14,300</div><div class="delta up">▲ 12% vs last month</div></div>
+        <div class="kpi"><h4>Active Learners</h4><div class="value">54</div><div class="delta up">▲ 6 new</div></div>
+        <div class="kpi"><h4>Sessions Held</h4><div class="value">312</div><div class="delta up">▲ 8%</div></div>
+        <div class="kpi"><h4>Avg. Rating</h4><div class="value">4.8 ⭐</div><div class="delta">across 142 reviews</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;">
+        <div class="chart-card">
+          <h3>Sessions per Week <span class="tag purple">Last 8 weeks</span></h3>
+          <div class="bar-chart">
+            <div class="bar" style="height:45%;"><span class="val">58</span><span class="label">W14</span></div>
+            <div class="bar" style="height:55%;"><span class="val">72</span><span class="label">W15</span></div>
+            <div class="bar" style="height:62%;"><span class="val">81</span><span class="label">W16</span></div>
+            <div class="bar" style="height:50%;"><span class="val">66</span><span class="label">W17</span></div>
+            <div class="bar" style="height:70%;"><span class="val">92</span><span class="label">W18</span></div>
+            <div class="bar" style="height:85%;"><span class="val">112</span><span class="label">W19</span></div>
+            <div class="bar" style="height:78%;"><span class="val">102</span><span class="label">W20</span></div>
+            <div class="bar" style="height:95%;"><span class="val">124</span><span class="label">W21</span></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>Revenue Mix</h3>
+          <div style="display:flex;align-items:center;gap:18px;">
+            <div class="donut">
+              <div class="donut-label"><div class="v">62%</div><div class="l">1:1 Courses</div></div>
+            </div>
+            <div class="legend">
+              <div class="legend-row"><div class="dot" style="background:#7c3aed;"></div>1:1 Courses · 62%</div>
+              <div class="legend-row"><div class="dot" style="background:#3b82f6;"></div>Group · 20%</div>
+              <div class="legend-row"><div class="dot" style="background:#10b981;"></div>Recorded · 13%</div>
+              <div class="legend-row"><div class="dot" style="background:#f3f4f6;border:1px solid #e5e7eb;"></div>Add-ons · 5%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="chart-card">
+          <h3>Top Performing Courses</h3>
+          <div class="top-list">
+            <div class="top-row gold"><div class="top-rank">1</div><div class="info">English Conversation Club<div class="meta">31 learners · ⭐ 4.9</div></div><div style="font-weight:700;color:#15803d;">₹48,200</div></div>
+            <div class="top-row"><div class="top-rank">2</div><div class="info">Vedic Math Crash Course<div class="meta">312 enrolled · ⭐ 4.8</div></div><div style="font-weight:700;">₹39,800</div></div>
+            <div class="top-row"><div class="top-rank">3</div><div class="info">Math Olympiad Prep<div class="meta">24 learners · ⭐ 4.8</div></div><div style="font-weight:700;">₹28,600</div></div>
+            <div class="top-row"><div class="top-rank">4</div><div class="info">Intro to AI for Teens<div class="meta">186 enrolled · ⭐ 4.7</div></div><div style="font-weight:700;">₹22,100</div></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>Top Instructors</h3>
+          <div class="top-list">
+            <div class="top-row gold"><div class="top-rank">1</div><div class="info">Ekta (Admin)<div class="meta">142 sessions · ⭐ 4.9</div></div><div style="font-weight:700;color:#15803d;">96% retention</div></div>
+            <div class="top-row"><div class="top-rank">2</div><div class="info">Priya Menon<div class="meta">108 sessions · ⭐ 4.8</div></div><div style="font-weight:700;">91% retention</div></div>
+            <div class="top-row"><div class="top-rank">3</div><div class="info">Arjun Iyer<div class="meta">62 sessions · ⭐ 4.7</div></div><div style="font-weight:700;">88% retention</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="sidebar.js"></script>
+<script src="app.js"></script>
+<script src="shelly.js"></script>
+<script>
+document.getElementById('range').addEventListener('change', function () { app.toast('Range updated — refresh charts'); });
+document.getElementById('export-btn').addEventListener('click', function () { app.toast('Generating PDF report…'); });
+
+window.addEventListener('load', function () {
+  shelly.suggest(['Why is revenue up?', "What's my best course?", 'Forecast next month']);
+  shelly.say("Strong month! 📈 Revenue is <strong>up 12% MoM</strong> to ₹2.14L, driven by <em>English Conversation Club</em>. Want me to forecast next month based on the trend?", {
+    delay: 700,
+    actions: [
+      { label: 'Forecast', primary: true, onClick: function () {
+        shelly.say('At current growth (12% MoM), next month should land around <strong>₹2.40L</strong>. The biggest upside lever: convert 5 trial learners — that adds ~₹35K alone.');
+      } },
+      { label: 'Show weak spots' },
+    ],
+  });
+});
+</script>
+</body>
+</html>

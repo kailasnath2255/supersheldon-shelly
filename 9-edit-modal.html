@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Edit Details Modal – Super Sheldon</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a2e;background:#fff;}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit;}
+input{font:inherit;}
+</style>
+
+<style>
+.app-layout{display:flex;min-height:100vh;}
+.sidebar{width:220px;min-width:220px;background:#1e2130;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar::-webkit-scrollbar{display:none;}
+.sidebar-logo{padding:16px 14px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.sidebar-logo-icon{width:32px;height:32px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sidebar-logo span{font-size:15px;font-weight:600;color:#fff;}
+.sidebar-nav{flex:1;padding:8px 0;display:flex;flex-direction:column;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,0.55);font-size:13.5px;font-weight:400;text-decoration:none;transition:background 150ms,color 150ms;position:relative;}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,0.08);color:#fff;}
+.nav-item svg{flex-shrink:0;opacity:0.7;}
+.nav-item.active svg,.nav-item:hover svg{opacity:1;}
+.nav-badge{width:8px;height:8px;background:#f97316;border-radius:50%;position:absolute;right:14px;top:50%;transform:translateY(-50%);}
+.nav-sub-item{display:flex;align-items:center;gap:10px;padding:8px 16px 8px 36px;color:rgba(255,255,255,0.45);font-size:13px;text-decoration:none;transition:background 150ms,color 150ms;}
+.nav-sub-item:hover,.nav-sub-item.active{background:rgba(255,255,255,0.06);color:#fff;}
+.nav-sub-item svg{flex-shrink:0;}
+.sidebar-account{padding:12px 14px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px;text-decoration:none;}
+.account-avatar{width:30px;height:30px;border-radius:50%;background:#4b5563;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.account-label{font-size:13.5px;color:rgba(255,255,255,0.8);font-weight:500;flex:1;}
+.account-arrow{color:rgba(255,255,255,0.4);font-size:16px;}
+.main-content{flex:1;background:#fff;overflow-y:auto;}
+
+.main-content{flex:1;overflow-y:auto;background:#fff;}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;}
+.tag.upcoming{background:#dcfce7;color:#166534;}
+.tag.cancelled{background:#fee2e2;color:#991b1b;}
+.three-dot{color:#9ca3af;font-size:18px;padding:4px 6px;background:none;border:none;cursor:pointer;}
+.start-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:#1e2130;color:#fff;border-radius:6px;font-size:13px;font-weight:600;border:none;cursor:pointer;}
+.start-btn:hover{background:#2d3148;}
+/* course detail header */
+.course-detail-header{padding:20px 24px 0;border-bottom:1px solid #e5e7eb;}
+.back-link{display:flex;align-items:center;gap:6px;color:#6b7280;font-size:13px;text-decoration:none;margin-bottom:10px;width:fit-content;}
+.back-link:hover{color:#1a1a2e;}
+.course-detail-title h1{font-size:22px;font-weight:700;color:#1a1a2e;}
+.course-detail-title p{font-size:13px;color:#6b7280;margin-top:2px;}
+.detail-tabs{display:flex;gap:0;margin-top:16px;}
+.dtab{padding:10px 16px;font-size:14px;font-weight:500;color:#6b7280;text-decoration:none;border-bottom:2px solid transparent;transition:all 150ms;display:block;}
+.dtab:hover{color:#1a1a2e;}
+.dtab.active{color:#1a1a2e;font-weight:600;border-bottom-color:#1a1a2e;}
+/* credits panel */
+.credits-panel{border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;}
+.credits-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e5e7eb;}
+.credits-header h4{font-size:14px;font-weight:700;}
+.manage-btn{font-size:13px;font-weight:500;padding:5px 10px;border:1px solid #e5e7eb;border-radius:5px;background:#fff;cursor:pointer;}
+.credits-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #e5e7eb;}
+.credit-cell{padding:12px 16px;border-right:1px solid #e5e7eb;}
+.credit-cell:last-child{border-right:none;}
+.credit-cell .label{font-size:12px;color:#6b7280;margin-bottom:4px;}
+.credit-cell .value{font-size:22px;font-weight:700;}
+.credit-log{padding:12px 16px;border-bottom:1px solid #e5e7eb;}
+.credit-log-row{display:flex;align-items:flex-start;gap:10px;}
+.credit-log-info{flex:1;}
+.credit-log-info h5{font-size:13px;font-weight:600;}
+.credit-log-info .sub{font-size:12px;color:#6b7280;margin-top:3px;display:flex;align-items:center;gap:6px;}
+.credit-plus{font-size:15px;font-weight:700;color:#16a34a;margin-left:auto;padding-top:2px;}
+.learner-section,.instructor-section{padding:14px 16px;border-bottom:1px solid #e5e7eb;}
+.instructor-section{border-bottom:none;}
+.section-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.section-heading h4{font-size:13px;font-weight:700;}
+.add-link{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;}
+.person-row{display:flex;align-items:center;gap:10px;}
+.avatar-circle{width:32px;height:32px;border-radius:50%;background:#1e2130;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.person-info h5{font-size:13px;font-weight:600;}
+.person-info p{font-size:12px;color:#6b7280;}
+/* session list */
+.session-list-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #f3f4f6;}
+.date-badge{background:#1e2130;color:#fff;border-radius:5px;padding:5px 10px;text-align:center;flex-shrink:0;min-width:46px;}
+.date-badge .month{font-size:10px;font-weight:600;text-transform:uppercase;}
+.date-badge .day{font-size:18px;font-weight:700;line-height:1.1;}
+.session-list-item-info{flex:1;}
+.session-list-item-info h5{font-size:13.5px;font-weight:600;}
+.session-list-item-info .meta{font-size:11px;color:#9ca3af;text-transform:uppercase;font-weight:600;letter-spacing:0.3px;margin-bottom:2px;}
+.session-list-item-info .time{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:4px;margin-bottom:5px;}
+.month-divider{font-size:12px;font-weight:700;color:#6b7280;padding:12px 0 6px;text-transform:uppercase;letter-spacing:0.5px;}
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:100;}
+.modal-box{background:#fff;border-radius:8px;width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.modal-box::-webkit-scrollbar{display:none;}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 24px 14px;border-bottom:1px solid #f3f4f6;}
+.modal-header-info h3{font-size:18px;font-weight:700;}
+.modal-header-info p{font-size:12px;color:#6b7280;margin-top:3px;}
+.modal-close{width:28px;height:28px;border-radius:99px;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:16px;flex-shrink:0;cursor:pointer;background:#fff;}
+.modal-close:hover{background:#f3f4f6;}
+.modal-body{padding:20px 24px;}
+.modal-session-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #f3f4f6;}
+.modal-date-badge{background:#1e2130;color:#fff;border-radius:5px;padding:5px 10px;text-align:center;flex-shrink:0;min-width:50px;}
+.modal-date-badge .m{font-size:11px;font-weight:600;text-transform:uppercase;}
+.modal-date-badge .d{font-size:20px;font-weight:700;line-height:1.1;}
+.modal-session-info{flex:1;}
+.modal-session-info h4{font-size:15px;font-weight:700;}
+.modal-session-info .time{font-size:13px;color:#6b7280;margin-top:3px;}
+.modal-section-row{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid #f3f4f6;}
+.modal-section-row:last-child{border-bottom:none;}
+.modal-icon-box{width:36px;height:36px;border-radius:8px;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.modal-label{font-size:11px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;}
+.modal-value{font-size:14px;font-weight:600;color:#1a1a2e;margin-top:2px;}
+.modal-action-btn{margin-left:auto;display:flex;align-items:center;gap:5px;padding:7px 14px;border:1.5px solid #e5e7eb;border-radius:6px;font-size:13px;font-weight:500;background:#fff;color:#374151;flex-shrink:0;cursor:pointer;}
+.modal-action-btn:hover{border-color:#9ca3af;}
+.private-chip{display:inline-flex;align-items:center;padding:3px 10px;border:1px solid #e5e7eb;border-radius:99px;font-size:12px;color:#6b7280;margin-top:5px;}
+.modal-avatar{width:36px;height:36px;border-radius:50%;background:#1e2130;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;}
+
+.edit-modal-box{background:#fff;border-radius:8px;width:480px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.edit-modal-box::-webkit-scrollbar{display:none;}
+.edit-hdr{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;}
+.edit-hdr h3{font-size:20px;font-weight:700;}
+.edit-field{padding:0 24px 16px;}
+.edit-field label{font-size:13px;color:#374151;display:block;margin-bottom:6px;line-height:1.5;}
+.edit-input{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:6px;font-size:14px;color:#1a1a2e;outline:none;font-family:Inter,sans-serif;transition:border-color 150ms;}
+.edit-input:focus{border-color:#6b7280;}
+.edit-footer{display:flex;gap:10px;padding:16px 24px;border-top:1px solid #f3f4f6;background:#fff;}
+.cancel-btn{flex:1;padding:11px;border:1.5px solid #e5e7eb;border-radius:7px;font-size:14px;font-weight:600;color:#374151;background:#fff;cursor:pointer;}
+.cancel-btn:hover{background:#f9fafb;}
+.save-btn{flex:1;padding:11px;background:#1e2130;color:#fff;border-radius:7px;font-size:14px;font-weight:600;border:none;cursor:pointer;}
+.save-btn:hover{background:#2d3148;}
+</style>
+</head>
+<body>
+
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);">
+  <div class="edit-modal-box">
+    <div class="edit-hdr">
+      <h3>Edit details</h3>
+      <a href="6-course-home.html"><button class="modal-close">&#x2715;</button></a>
+    </div>
+    <!-- avatar -->
+    <div style="padding:0 24px 16px;position:relative;width:fit-content;">
+      <div style="width:96px;height:96px;border-radius:50%;background:#9ca3af;border:2px solid #e5e7eb;display:flex;align-items:center;justify-content:center;">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="position:absolute;bottom:16px;right:0;width:28px;height:28px;border-radius:50%;background:#1e2130;display:flex;align-items:center;justify-content:center;border:2px solid #fff;cursor:pointer;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+    </div>
+    <div class="edit-field">
+      <label>What NAME should sparkle&#x2728; on the leaderboard when you ace it?&#x1F680; (Name) <span style="color:#ef4444;">*</span></label>
+      <input class="edit-input" value="Ekta test">
+    </div>
+    <div class="edit-field">
+      <label>What awesome school do you go to?&#x1F3EB; (School name) <span style="color:#ef4444;">*</span></label>
+      <input class="edit-input" value="DAV">
+    </div>
+    <div class="edit-field">
+      <label>Which cool city do you call home?&#x1F3D9;&#xFE0F; (City) <span style="color:#ef4444;">*</span></label>
+      <input class="edit-input" value="Bangalore">
+    </div>
+    <div class="edit-field">
+      <label>And your state&#x2014;the land of legends?&#x1F5FA;&#xFE0F; (State) <span style="color:#ef4444;">*</span></label>
+      <input class="edit-input" value="Karnataka">
+    </div>
+    <div class="edit-field">
+      <label>And finally, what country do you live in?&#x1F30D; <span style="color:#ef4444;">*</span></label>
+      <input class="edit-input" value="India">
+    </div>
+    <div style="padding:0 24px 8px;font-size:14px;font-weight:600;">Tags</div>
+    <div class="edit-footer">
+      <a href="6-course-home.html" style="flex:1;text-decoration:none;"><button class="cancel-btn" style="width:100%;">Cancel</button></a>
+      <button id="save-btn" class="save-btn">Save</button>
+    </div>
+    <div style="padding:14px 24px 16px;font-size:14px;font-weight:600;color:#1a1a2e;">Phone number</div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+document.getElementById('save-btn').addEventListener('click', function () {
+  const inputs = document.querySelectorAll('.edit-input');
+  let missing = null;
+  inputs.forEach(function (i) {
+    if (!i.value.trim()) { i.style.borderColor = '#ef4444'; missing = missing || i; }
+    else { i.style.borderColor = ''; }
+  });
+  if (missing) {
+    missing.focus();
+    app.toast('Please fill all required fields');
+    if (window.shelly) shelly.say('Looks like a required field is empty — check the red outline. 👀');
+    return;
+  }
+  app.toast('Details saved');
+  if (window.shelly) shelly.say("Profile updated! <strong>Ekta test</strong>'s details are all set. ✅");
+  setTimeout(function () { window.location.href = '6-course-home.html'; }, 1100);
+});
+</script>
+<script src="shelly.js"></script>
+<script>
+window.addEventListener('load', function () {
+  const inputs = document.querySelectorAll('.edit-input');
+  const missing = Array.from(inputs).filter(function (i) { return !i.value.trim(); }).length;
+  if (missing > 0) {
+    shelly.say(
+      "Psst — <strong>Ekta test</strong>'s profile is missing some details. Filling this in helps personalise their experience. 👋",
+      { delay: 700 }
+    );
+  } else {
+    shelly.say(
+      "<strong>Ekta test</strong>'s profile looks complete. Double-check the city and school are current, then hit <em>Save</em>. ✨",
+      { delay: 700 }
+    );
+  }
+});
+</script>
+</body>
+</html>

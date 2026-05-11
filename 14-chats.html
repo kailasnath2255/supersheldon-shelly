@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Chats – Super Sheldon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+.chat-layout{display:grid;grid-template-columns:300px 1fr;height:100vh;min-height:600px;}
+.chat-list{border-right:1px solid #e5e7eb;display:flex;flex-direction:column;background:#fff;}
+.chat-list-hdr{padding:16px 16px 12px;border-bottom:1px solid #f3f4f6;}
+.chat-list-hdr h2{font-size:16px;font-weight:700;margin-bottom:10px;}
+.chat-list-items{flex:1;overflow-y:auto;}
+.chat-item{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f9fafb;cursor:pointer;transition:background 120ms;}
+.chat-item:hover,.chat-item.active{background:#f9fafb;}
+.chat-item.active{border-left:3px solid #7c3aed;padding-left:13px;}
+.chat-item-info{flex:1;min-width:0;}
+.chat-item-info .name{font-size:13px;font-weight:600;display:flex;justify-content:space-between;}
+.chat-item-info .name .time{font-size:11px;color:#9ca3af;font-weight:400;}
+.chat-item-info .preview{font-size:12px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.unread-dot{width:9px;height:9px;border-radius:50%;background:#7c3aed;flex-shrink:0;}
+.chat-thread{display:flex;flex-direction:column;background:#fafafa;}
+.thread-hdr{padding:14px 20px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:12px;}
+.thread-hdr h3{font-size:15px;font-weight:700;}
+.thread-hdr p{font-size:12px;color:#6b7280;}
+.thread-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px;}
+.bubble{max-width:65%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.45;position:relative;}
+.bubble.them{background:#fff;border:1px solid #e5e7eb;border-top-left-radius:4px;align-self:flex-start;}
+.bubble.me{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-top-right-radius:4px;align-self:flex-end;}
+.bubble .ts{display:block;font-size:10px;opacity:0.7;margin-top:3px;}
+.thread-compose{padding:12px 16px;background:#fff;border-top:1px solid #e5e7eb;display:flex;gap:10px;align-items:center;}
+.thread-compose input{flex:1;border:1.5px solid #e5e7eb;border-radius:99px;padding:9px 16px;font-size:13px;outline:none;background:#f9fafb;}
+.thread-compose input:focus{border-color:#7c3aed;background:#fff;}
+.send-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;}
+.suggested-replies{display:flex;gap:6px;padding:0 16px 10px;flex-wrap:wrap;background:#fff;}
+.suggested-replies button{padding:5px 10px;border-radius:99px;border:1px solid #c4b5fd;background:#f5f3ff;color:#5b21b6;font-size:11.5px;font-weight:500;cursor:pointer;font-family:inherit;}
+.suggested-replies button:hover{background:#ede9fe;}
+</style>
+</head>
+<body data-page="chats">
+<div class="app-layout">
+  <div id="sidebar-root"></div>
+  <div class="main-content">
+    <div class="chat-layout">
+      <div class="chat-list">
+        <div class="chat-list-hdr">
+          <h2>Chats <span id="chat-count-tag" class="tag purple" style="margin-left:4px;"></span></h2>
+          <div class="search-input" style="min-width:0;width:100%;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="chat-search" placeholder="Search">
+          </div>
+        </div>
+        <div class="chat-list-items" id="chat-list"></div>
+      </div>
+
+      <div class="chat-thread">
+        <div class="thread-hdr">
+          <div class="avatar" id="thread-avatar">—</div>
+          <div><h3 id="thread-name">—</h3><p id="thread-sub">—</p></div>
+          <div style="margin-left:auto;display:flex;gap:6px;">
+            <button class="btn ghost sm" title="Call">📞</button>
+            <button class="btn ghost sm" title="More">⋮</button>
+          </div>
+        </div>
+        <div class="thread-body" id="thread-body"></div>
+        <div class="suggested-replies" id="suggested-replies"></div>
+        <div class="thread-compose">
+          <input id="msg-input" placeholder="Type a message…">
+          <button class="send-btn" id="send-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="sidebar.js"></script>
+<script src="app.js"></script>
+<script src="shelly.js"></script>
+<script>
+let currentId = null;
+let searchQuery = '';
+
+function formatTime(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = (now - d) / 60000;
+  if (diff < 1) return 'now';
+  if (diff < 60) return Math.round(diff) + 'm';
+  if (diff < 1440) return Math.round(diff / 60) + 'h';
+  if (diff < 2880) return 'Yesterday';
+  return Math.round(diff / 1440) + 'd';
+}
+
+function renderChatList() {
+  const chats = db.get().chats.filter(function (c) {
+    if (!searchQuery) return true;
+    const u = db.findUser(c.userId);
+    return u && u.name.toLowerCase().includes(searchQuery);
+  }).sort(function (a, b) { return b.lastMessageAt.localeCompare(a.lastMessageAt); });
+
+  const totalUnread = db.unreadChatCount();
+  const tag = document.getElementById('chat-count-tag');
+  tag.textContent = totalUnread ? totalUnread + ' unread' : 'All read';
+  tag.className = 'tag ' + (totalUnread ? 'purple' : 'green');
+
+  const list = document.getElementById('chat-list');
+  if (!chats.length) {
+    list.innerHTML = '<div style="padding:30px;text-align:center;color:#9ca3af;font-size:13px;">No conversations.</div>';
+    return;
+  }
+  list.innerHTML = chats.map(function (c) {
+    const u = db.findUser(c.userId) || { name: 'Unknown', avatar: '?', color: '#9ca3af' };
+    const last = c.messages[c.messages.length - 1];
+    const isMe = last && last.from === 'me';
+    const preview = last ? (isMe ? 'You: ' : '') + last.text : '';
+    const subtitle = (u.role === 'parent' ? 'Parent' : u.role === 'instructor' ? 'Instructor' : 'Student') + (u.linkedTo ? ' • ' + (db.findUser(u.linkedTo[0]) || {}).name : '');
+    return '<div class="chat-item ' + (c.id === currentId ? 'active' : '') + '" data-id="' + c.id + '">' +
+      '<div class="avatar" style="background:' + u.color + ';">' + u.avatar + '</div>' +
+      '<div class="chat-item-info">' +
+        '<div class="name">' + u.name + ' <span class="time">' + formatTime(c.lastMessageAt) + '</span></div>' +
+        '<div class="preview">' + (preview.length > 40 ? preview.slice(0, 40) + '…' : preview) + '</div>' +
+      '</div>' +
+      (c.unread > 0 ? '<div class="unread-dot" title="' + c.unread + ' unread"></div>' : '') +
+      '</div>';
+  }).join('');
+
+  list.querySelectorAll('.chat-item').forEach(function (el) {
+    el.addEventListener('click', function () {
+      currentId = el.dataset.id;
+      db.markChatRead(currentId);
+    });
+  });
+}
+
+function renderThread() {
+  const chat = currentId ? db.findChat(currentId) : null;
+  if (!chat) {
+    document.getElementById('thread-body').innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:13px;margin:auto;">Select a conversation</div>';
+    document.getElementById('thread-name').textContent = '';
+    document.getElementById('thread-sub').textContent = '';
+    document.getElementById('thread-avatar').textContent = '';
+    document.getElementById('suggested-replies').innerHTML = '';
+    return;
+  }
+  const u = db.findUser(chat.userId) || { name: 'Unknown', avatar: '?', color: '#9ca3af' };
+  document.getElementById('thread-name').textContent = u.name;
+  document.getElementById('thread-sub').textContent = (u.role || '') + (u.linkedTo ? ' • ' + (db.findUser(u.linkedTo[0]) || {}).name : '');
+  const av = document.getElementById('thread-avatar');
+  av.textContent = u.avatar;
+  av.style.background = u.color;
+  const body = document.getElementById('thread-body');
+  body.innerHTML = chat.messages.map(function (m) {
+    const t = new Date(m.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return '<div class="bubble ' + (m.from === 'me' ? 'me' : 'them') + '">' + m.text + '<span class="ts">' + t + '</span></div>';
+  }).join('');
+  body.scrollTop = body.scrollHeight;
+
+  // Suggested replies (smart-ish: pick based on last message)
+  const last = chat.messages[chat.messages.length - 1];
+  const replies = document.getElementById('suggested-replies');
+  if (last && last.from !== 'me') {
+    let suggestions = ['👍 Got it', 'Sure, let me check', "I'll get back to you"];
+    if (/shift|move|reschedul/i.test(last.text)) suggestions = ['Sure, 7:30 PM works ✅', 'Let me confirm with the team', "I'll send a new invite"];
+    if (/thank|loved|great/i.test(last.text)) suggestions = ["You're welcome! 🌟", 'So glad to hear that', '💜'];
+    if (/credit|paid|top.?up/i.test(last.text)) suggestions = ['Confirmed, credits added', 'Receipt incoming', 'Thanks for the heads up'];
+    replies.innerHTML = suggestions.map(function (s) { return '<button data-reply="' + s.replace(/"/g, '&quot;') + '">' + s + '</button>'; }).join('');
+    replies.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        db.sendMessage(chat.id, b.dataset.reply);
+      });
+    });
+  } else {
+    replies.innerHTML = '';
+  }
+}
+
+function send() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text || !currentId) return;
+  input.value = '';
+  db.sendMessage(currentId, text);
+  // Auto-reply (for parents/instructors) after a small delay
+  const chat = db.findChat(currentId);
+  if (chat && chat.userId !== 'me') {
+    setTimeout(function () {
+      db.update(function (d) {
+        const c = d.chats.find(function (x) { return x.id === currentId; });
+        if (!c) return;
+        c.messages.push({ id: 'm-' + Date.now(), from: c.userId, text: 'Got it, thanks Ekta!', at: new Date().toISOString() });
+        c.lastMessageAt = new Date().toISOString();
+        c.unread += 1;
+      });
+    }, 1500);
+  }
+}
+
+document.getElementById('chat-search').addEventListener('input', function (e) { searchQuery = e.target.value.trim().toLowerCase(); renderChatList(); });
+document.getElementById('send-btn').addEventListener('click', send);
+document.getElementById('msg-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+
+db.subscribe(function () { renderChatList(); renderThread(); });
+
+// Initial state: open the first unread chat
+const firstUnread = db.unreadChats()[0] || db.get().chats[0];
+if (firstUnread) { currentId = firstUnread.id; db.markChatRead(currentId); }
+renderChatList();
+renderThread();
+
+window.addEventListener('load', function () {
+  shelly.context({ page: 'chats', chatId: currentId });
+  shelly.suggest(['Summarise unread chats', 'Draft a reply to Rajiv', 'Open chat with Shelly']);
+  const unreadCount = db.unreadChatCount();
+  if (unreadCount) {
+    shelly.say("You had <strong>" + unreadCount + " unread message(s)</strong>. I've opened the most recent. Want me to draft replies to all unread parents?", {
+      delay: 700,
+      actions: [
+        { label: 'Draft replies', primary: true, onClick: function () { shelly.say("Drafts ready below each thread — smart replies appear when the parent's the last to send. ✅"); } },
+        { label: 'Just one — Rajiv', onClick: function () { shelly.ask('/draft rajiv'); } },
+      ],
+    });
+  } else {
+    shelly.say("Inbox zero, you legend. 🎉 Need to send a follow-up to anyone?");
+  }
+});
+</script>
+</body>
+</html>

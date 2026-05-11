@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Recorded Courses – Super Sheldon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body data-page="recorded">
+<div class="app-layout">
+  <div id="sidebar-root"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Recorded Courses</h1>
+        <p>On-demand video courses students can take any time.</p>
+      </div>
+      <div class="page-actions">
+        <div class="search-input">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search" placeholder="Search recorded courses">
+        </div>
+        <button class="btn primary" id="add-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Upload Course
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="kpi-grid" style="margin-bottom:20px;">
+        <div class="kpi"><h4>Total Courses</h4><div class="value">12</div></div>
+        <div class="kpi"><h4>Enrollments</h4><div class="value">847</div><div class="delta up">▲ 8% this month</div></div>
+        <div class="kpi"><h4>Avg. Completion</h4><div class="value">63%</div></div>
+        <div class="kpi"><h4>Watch Hours</h4><div class="value">2,140</div></div>
+      </div>
+
+      <div class="card-grid" id="grid">
+        <a class="card" data-name="Vedic Math Crash Course">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#fde68a,#dc2626);">📐<div class="play-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="6 4 20 12 6 20"/></svg></div></div>
+          <div class="card-title">Vedic Math Crash Course</div>
+          <div class="card-meta">
+            <span>🎬 24 videos</span>
+            <span>⏱ 8h 12m</span>
+            <span>👥 312 enrolled</span>
+          </div>
+        </a>
+        <a class="card" data-name="Intro to AI for Teens">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#a78bfa,#1e3a8a);">🤖<div class="play-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="6 4 20 12 6 20"/></svg></div></div>
+          <div class="card-title">Intro to AI for Teens</div>
+          <div class="card-meta">
+            <span>🎬 18 videos</span>
+            <span>⏱ 5h 40m</span>
+            <span>👥 186 enrolled</span>
+          </div>
+        </a>
+        <a class="card" data-name="Creative Writing Workshop">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#fef3c7,#f97316);">✍️<div class="play-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="6 4 20 12 6 20"/></svg></div></div>
+          <div class="card-title">Creative Writing Workshop</div>
+          <div class="card-meta">
+            <span>🎬 12 videos</span>
+            <span>⏱ 3h 20m</span>
+            <span>👥 94 enrolled</span>
+          </div>
+        </a>
+        <a class="card" data-name="Chess Fundamentals">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#d4d4d8,#52525b);">♟️<div class="play-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="6 4 20 12 6 20"/></svg></div></div>
+          <div class="card-title">Chess Fundamentals</div>
+          <div class="card-meta">
+            <span>🎬 30 videos</span>
+            <span>⏱ 11h 5m</span>
+            <span>👥 142 enrolled</span>
+          </div>
+        </a>
+        <a class="card" data-name="Spoken Hindi for Kids">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#fecaca,#dc2626);">📚<div class="play-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="6 4 20 12 6 20"/></svg></div></div>
+          <div class="card-title">Spoken Hindi for Kids</div>
+          <div class="card-meta">
+            <span>🎬 22 videos</span>
+            <span>⏱ 6h 50m</span>
+            <span>👥 78 enrolled</span>
+          </div>
+        </a>
+        <a class="card" data-name="Drawing &amp; Sketching 101">
+          <div class="card-thumb" style="background:linear-gradient(135deg,#bfdbfe,#7c3aed);">🎨<div class="play-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="6 4 20 12 6 20"/></svg></div></div>
+          <div class="card-title">Drawing &amp; Sketching 101</div>
+          <div class="card-meta">
+            <span>🎬 15 videos</span>
+            <span>⏱ 4h 30m</span>
+            <span>👥 35 enrolled</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="sidebar.js"></script>
+<script src="app.js"></script>
+<script src="shelly.js"></script>
+<script>
+document.getElementById('search').addEventListener('input', function (e) {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('#grid .card').forEach(function (c) {
+    c.style.display = !q || c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+document.getElementById('add-btn').addEventListener('click', function () {
+  app.modal('Upload a recorded course',
+    app.field('Course title', { id: 'rc-name', placeholder: 'e.g. Vedic Math Crash Course' }) +
+    app.field('Topic', { id: 'rc-topic', placeholder: 'e.g. Math, Tech, Language' }) +
+    app.field('Number of videos', { id: 'rc-videos', type: 'number', placeholder: '12', value: '12' }) +
+    app.field('Total duration (hours)', { id: 'rc-hours', type: 'number', placeholder: '4', value: '4' }) +
+    '<p style="margin-top:12px;font-size:12px;color:#6b7280;">📦 In production, this is where you\'d drop video files. For now we add the course shell — you can fill the videos in later.</p>',
+    { actions: [
+      { label: 'Cancel' },
+      { label: 'Publish course', primary: true, onClick: function (body) {
+        const name = body.querySelector('#rc-name').value.trim();
+        if (!name) { app.toast('Title is required'); return false; }
+        const ICONS = ['🎬','📚','💡','🎨','📐','🤖'];
+        db.update(function (d) {
+          d.courses.unshift({
+            id: 'c-' + Date.now(), name: name, type: 'recorded',
+            topic: body.querySelector('#rc-topic').value || 'General',
+            icon: ICONS[Math.floor(Math.random()*ICONS.length)],
+            videos: Number(body.querySelector('#rc-videos').value) || 12,
+            durationHours: Number(body.querySelector('#rc-hours').value) || 4,
+            enrollments: 0, rating: 5.0,
+          });
+        });
+        app.toast('"' + name + '" published');
+        if (window.shelly) shelly.say('Published <strong>' + name + '</strong>! 🎬 Share the course link from <em>Store</em> to start collecting enrolments.');
+        setTimeout(function(){window.location.reload();}, 600);
+      } },
+    ] }
+  );
+});
+document.querySelectorAll('#grid .card').forEach(function (c) {
+  c.addEventListener('click', function () { window.location.href = '7-course-content.html'; });
+});
+window.addEventListener('load', function () {
+  shelly.suggest(['Top performing course?', 'Why is completion 63%?', 'Suggest a new course']);
+  shelly.say("Your recorded library has earned <strong>2,140 watch hours</strong> this month — that's about 89 days of learning! 🎥 Your top course is <em>Vedic Math Crash Course</em> with 312 enrollments.", {
+    delay: 700,
+    actions: [
+      { label: 'Boost completion', primary: true, onClick: function () {
+        shelly.say('Try: <strong>1)</strong> Add a short quiz after every 3 videos, <strong>2)</strong> Email at 50% completion, <strong>3)</strong> Issue a certificate at 100%. Completion typically jumps to ~80%.');
+      } },
+      { label: 'Suggest topic' },
+    ],
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Users – Super Sheldon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+.modal-bd{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.modal-card{background:#fff;border-radius:12px;width:420px;max-width:95vw;padding:24px;}
+.modal-card h3{font-size:16px;font-weight:700;margin-bottom:14px;}
+.modal-card label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;margin-top:10px;}
+.modal-card input,.modal-card select{width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit;}
+.modal-card input:focus,.modal-card select:focus{border-color:#7c3aed;}
+.modal-card .footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+</style>
+</head>
+<body data-page="users">
+<div class="app-layout">
+  <div id="sidebar-root"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Users</h1>
+        <p>Everyone in your Super Sheldon workspace — students, parents, instructors.</p>
+      </div>
+      <div class="page-actions">
+        <div class="search-input">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search" placeholder="Search by name or email">
+        </div>
+        <button class="btn primary" id="add-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Invite User
+        </button>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="section">
+      <table class="table">
+        <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Last Active</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="sidebar.js"></script>
+<script src="app.js"></script>
+<script src="shelly.js"></script>
+<script>
+let activeRole = 'all';
+let searchQuery = '';
+
+function renderTabs() {
+  const counts = { all: db.get().users.length, student: db.students().length, parent: db.usersByRole('parent').length, instructor: db.usersByRole('instructor').length, admin: db.usersByRole('admin').length };
+  const tabs = [
+    { id: 'all', label: 'All' },
+    { id: 'student', label: 'Students' },
+    { id: 'parent', label: 'Parents' },
+    { id: 'instructor', label: 'Instructors' },
+    { id: 'admin', label: 'Admins' },
+  ];
+  document.getElementById('tabs').innerHTML = tabs.map(function (t) {
+    return '<button class="tab ' + (activeRole === t.id ? 'active' : '') + '" data-role="' + t.id + '">' + t.label + ' <span class="count">' + counts[t.id] + '</span></button>';
+  }).join('');
+  document.querySelectorAll('#tabs .tab').forEach(function (el) {
+    el.addEventListener('click', function () { activeRole = el.dataset.role; render(); });
+  });
+}
+
+function roleTag(role) {
+  const TAGS = { student: 'purple', parent: 'blue', instructor: 'gray', admin: 'red' };
+  return '<span class="tag ' + (TAGS[role] || 'gray') + '">' + role.charAt(0).toUpperCase() + role.slice(1) + '</span>';
+}
+
+function statusTag(u) {
+  if (u.status === 'inactive') return '<span class="tag yellow">Inactive</span>';
+  return '<span class="tag green">Active</span>';
+}
+
+function render() {
+  renderTabs();
+  const users = db.get().users.filter(function (u) {
+    const roleMatch = activeRole === 'all' || u.role === activeRole;
+    const textMatch = !searchQuery || (u.name + ' ' + (u.email || '')).toLowerCase().includes(searchQuery);
+    return roleMatch && textMatch;
+  });
+  const rows = document.getElementById('rows');
+  if (!users.length) {
+    rows.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#9ca3af;">No users match your filter.</td></tr>';
+    return;
+  }
+  rows.innerHTML = users.map(function (u) {
+    return '<tr data-id="' + u.id + '"><td><div class="avatar-row"><div class="avatar" style="background:' + (u.color || '#1e2130') + ';">' + (u.avatar || u.name[0]) + '</div><div class="avatar-row-info"><h5>' + u.name + '</h5><p>' + (u.email || '') + '</p></div></div></td>' +
+      '<td>' + roleTag(u.role) + '</td>' +
+      '<td>' + statusTag(u) + '</td>' +
+      '<td>' + (u.active || '—') + '</td>' +
+      '<td><button class="btn ghost sm" data-view="' + u.id + '">View</button></td></tr>';
+  }).join('');
+  function openProfile(u) {
+    if (!u) return;
+    const body =
+      '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">' +
+        '<div class="avatar" style="background:' + (u.color || '#1e2130') + ';width:54px;height:54px;font-size:22px;">' + (u.avatar || u.name[0]) + '</div>' +
+        '<div>' +
+          '<div style="font-size:16px;font-weight:700;">' + u.name + '</div>' +
+          '<div style="font-size:12px;color:#6b7280;">' + (u.email || '') + '</div>' +
+          '<div style="margin-top:5px;">' + roleTag(u.role) + ' ' + statusTag(u) + '</div>' +
+        '</div>' +
+      '</div>' +
+      (u.role === 'student'
+        ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12.5px;color:#374151;background:#f9fafb;padding:12px;border-radius:8px;">' +
+            '<div><strong>Completion</strong><br>' + (u.progress != null ? u.progress + '%' : '—') + '</div>' +
+            '<div><strong>Sessions</strong><br>' + (u.sessionsAttended || 0) + '/' + (u.sessionsTotal || 0) + '</div>' +
+            '<div><strong>Parent</strong><br>' + (u.parent || '—') + '</div>' +
+            '<div><strong>School</strong><br>' + (u.school || '—') + '</div>' +
+            '<div><strong>City</strong><br>' + (u.city || '—') + '</div>' +
+            '<div><strong>Last active</strong><br>' + (u.active || '—') + '</div>' +
+          '</div>'
+        : u.role === 'instructor'
+          ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12.5px;color:#374151;background:#f9fafb;padding:12px;border-radius:8px;">' +
+              '<div><strong>Rating</strong><br>' + (u.rating || '—') + ' ⭐</div>' +
+              '<div><strong>Sessions</strong><br>' + (u.sessions || 0) + '</div>' +
+              '<div><strong>Retention</strong><br>' + (u.retention || '—') + '%</div>' +
+              '<div><strong>Last active</strong><br>' + (u.active || '—') + '</div>' +
+            '</div>'
+          : '<div style="font-size:12.5px;color:#6b7280;background:#f9fafb;padding:12px;border-radius:8px;">Last active: ' + (u.active || '—') + '</div>');
+    app.modal(u.name, body, {
+      width: 460,
+      actions: [
+        { label: 'Send message', onClick: function () { window.location.href = '14-chats.html'; } },
+        u.role === 'student' ? { label: 'Open course', onClick: function () { window.location.href = '6-course-home.html'; } } : null,
+        { label: 'Done', primary: true },
+      ].filter(Boolean),
+    });
+  }
+  rows.querySelectorAll('tr').forEach(function (r) {
+    r.addEventListener('click', function (e) {
+      if (e.target.closest('button')) return;
+      openProfile(db.findUser(r.dataset.id));
+    });
+  });
+  rows.querySelectorAll('[data-view]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      openProfile(db.findUser(b.dataset.view));
+    });
+  });
+}
+
+document.getElementById('search').addEventListener('input', function (e) { searchQuery = e.target.value.trim().toLowerCase(); render(); });
+
+document.getElementById('add-btn').addEventListener('click', function () {
+  const COLORS = ['#7c3aed','#f97316','#16a34a','#ef4444','#a855f7','#0ea5e9','#8b5cf6','#6366f1','#f59e0b','#dc2626'];
+  const modal = document.createElement('div');
+  modal.className = 'modal-bd';
+  modal.innerHTML =
+    '<div class="modal-card">' +
+      '<h3>Invite a new user</h3>' +
+      '<label>Name</label><input id="m-name" placeholder="e.g. Riya Sharma">' +
+      '<label>Email or phone</label><input id="m-email" placeholder="riya@gmail.com">' +
+      '<label>Role</label><select id="m-role">' +
+        '<option value="student">Student</option>' +
+        '<option value="parent">Parent</option>' +
+        '<option value="instructor">Instructor</option>' +
+      '</select>' +
+      '<div class="footer">' +
+        '<button class="btn outline" id="m-cancel">Cancel</button>' +
+        '<button class="btn primary" id="m-save">Send invite</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+  modal.querySelector('#m-cancel').addEventListener('click', function () { modal.remove(); });
+  modal.querySelector('#m-save').addEventListener('click', function () {
+    const name = modal.querySelector('#m-name').value.trim();
+    const email = modal.querySelector('#m-email').value.trim();
+    const role = modal.querySelector('#m-role').value;
+    if (!name || !email) { app.toast('Please fill both fields'); return; }
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const user = { name: name, email: email, role: role, avatar: name[0].toUpperCase(), color: color, active: 'just now', progress: role === 'student' ? 0 : undefined, sessionsAttended: 0, sessionsTotal: 0 };
+    db.addUser(user);
+    modal.remove();
+    app.toast('Invite sent to ' + email);
+    if (window.shelly) shelly.say('Invite sent to <strong>' + name + '</strong>! They\'ll show up here once they accept. Want me to draft a welcome message?');
+  });
+  modal.addEventListener('click', function (e) { if (e.target === modal) modal.remove(); });
+});
+
+db.subscribe(render);
+render();
+
+window.addEventListener('load', function () {
+  shelly.context({ page: 'users' });
+  shelly.suggest(['Who is inactive?', 'Invite a new student', "Who's at risk?"]);
+  const inactive = db.students().filter(function (s) { return s.status === 'inactive'; }).length;
+  if (inactive > 0) {
+    shelly.say("Your roster: <strong>" + db.students().length + " students</strong>, " + db.usersByRole('parent').length + ' parents, ' + db.usersByRole('instructor').length + ' instructors. ' + inactive + ' student(s) have gone inactive — want me to send re-engagement nudges? 👋', {
+      delay: 700,
+      actions: [
+        { label: 'Send nudges', primary: true, onClick: function () { shelly.say('Drafts queued for inactive learners. Review in <em>Chats</em> before sending. ✅'); } },
+        { label: "Who's at risk?", onClick: function () { shelly.ask('/risk'); } },
+      ],
+    });
+  } else {
+    shelly.say("Everyone's active! 🌟 Want me to find a particular learner? Try <code>/find aadya</code>.");
+  }
+});
+</script>
+</body>
+</html>
