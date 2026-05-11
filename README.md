@@ -164,15 +164,44 @@ Every message Shelly says and every user input is stored in `db.shellyChat`. On 
 
 When Shelly's rule-based router can't match an input (e.g. "how do I handle a kid who keeps disengaging?"), she **silently** falls back to **Google Gemini** with a tightly-scoped system prompt + live data context. The user never sees a "Connect Gemini" button — they just see Shelly answering.
 
-### To enable
+### Architecture (key never touches the browser)
 
-Open [`gemini.js`](gemini.js) and paste your API key into one line:
-
-```js
-const GEMINI_KEY = '';   // ← paste your key inside the quotes
+```
+Browser (gemini.js)
+   ↓ POST /api/shelly  { query, context }
+Vercel Serverless Function (api/shelly.js)
+   ↓ uses process.env.GEMINI_API_KEY
+Google Gemini API
 ```
 
-Get a free key at https://aistudio.google.com/app/apikey. The free tier (15 req/min, 1M tokens/day) easily covers personal demos.
+The key lives in **Vercel environment variables only** — never in `git`, never in client code, never in localStorage.
+
+### To enable on Vercel (one time, 60 seconds)
+
+1. Get a free Gemini API key at https://aistudio.google.com/app/apikey
+2. In your Vercel dashboard → **Project** → **Settings** → **Environment Variables**
+3. Add: `GEMINI_API_KEY` = `<your key>` — for all environments (Production / Preview / Development)
+4. Redeploy (Vercel auto-redeploys on the next push, or click **Redeploy** in the dashboard)
+
+That's it. The frontend code stays untouched.
+
+### Local development with Gemini
+
+For the serverless function to run locally, use Vercel CLI:
+
+```bash
+npm i -g vercel
+vercel dev
+# Open http://localhost:3000
+```
+
+Set the env var locally with a `.env.local` file (auto-gitignored by Vercel):
+
+```
+GEMINI_API_KEY=your_key_here
+```
+
+Without `vercel dev`, the static server (`python3 -m http.server`) won't have the `/api/shelly` endpoint — Shelly silently falls back to rule-based replies. **Everything else works locally.**
 
 ### What's locked down
 
@@ -216,9 +245,12 @@ super-sheldon-screens/
 ├── data.js                 # seeded database (single source of truth)
 ├── sidebar.js              # injected sidebar with live badges
 ├── shelly.js               # the AI sidekick — UI, brain, actions, tour
-├── gemini.js               # silent Gemini fallback (optional, opt-in via key)
+├── gemini.js               # browser-side Gemini fallback (calls /api/shelly)
+├── api/
+│   └── shelly.js           # Vercel serverless function — holds the Gemini key
 ├── logo.webp               # brand logo
 │
+├── vercel.json             # Vercel config (region, function memory, cache)
 ├── README.md               # this file
 └── .gitignore
 ```
@@ -309,7 +341,7 @@ The total bundle (every HTML page + every JS file + the logo) is well under 200 
 This is a frontend-only demo, so:
 
 - **No multi-user sync** — Phone A's edits don't appear on Phone B. Each device has its own localStorage copy of the data. Production would need a backend (Supabase, Firebase, or custom).
-- **Gemini key is client-side** — readable by anyone view-sourcing the site. Fine for demos; for production, swap `gemini.js` to call a serverless function.
+- **Gemini key is server-side** ✅ — held as a Vercel env var, never in the browser. (Local dev without `vercel dev` falls back to rule-based replies, which is by design.)
 - **No real video calls** — the Live Session screen is illustrative. Production would integrate Zoom / Daily / 100ms / WebRTC.
 - **No actual payment processing** — the Store top-up mutates `db.credits.balance` but doesn't charge a card. Wire in Razorpay / Stripe for real.
 - **No password / 2FA** — phone OTP is pre-filled (`2472`) for instant demo access. Production would call a real SMS provider.

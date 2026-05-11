@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/shelly.js": {
+      "memory": 256,
+      "maxDuration": 15
+    }
+  },
+  "regions": ["bom1"],
+  "headers": [
+    {
+      "source": "/(.*)\\.(html|js|css|webp)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/api/shelly",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ]
+}
