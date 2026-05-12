@@ -12,165 +12,225 @@
   let pendingQuestion = null; // 'name' | 'tour-continue' | …
   let tourState = null;       // { steps, index, onDone }
 
-  // ===== Avatars =====
+  // ===== Avatars (v6 — Orange Superwoman) =====
   function shellyHeroSvg(size) {
     size = size || 80;
-    const h = Math.round(size * 1.12);
-    return '<svg width="' + size + '" height="' + h + '" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">' +
-      '<path d="M28 30 Q8 36 6 60 Q14 60 22 56 Q16 68 12 78 Q24 76 32 66 L40 50 Z" fill="#dc2626"/>' +
-      '<path d="M52 30 Q72 36 74 60 Q66 60 58 56 Q64 68 68 78 Q56 76 48 66 L40 50 Z" fill="#dc2626"/>' +
-      '<path d="M28 30 L52 30 L48 64 L40 68 L32 64 Z" fill="#991b1b"/>' +
-      '<path d="M46 56 L50 76 L52 82 L46 82 L42 76 L40 60 Z" fill="#fde68a"/>' +
-      '<path d="M40 78 L54 78 L54 84 L40 84 Z" fill="#1e3a8a"/>' +
-      '<path d="M34 56 L30 76 L28 82 L34 82 L38 76 L40 60 Z" fill="#fde68a"/>' +
-      '<path d="M26 78 L40 78 L40 84 L26 84 Z" fill="#1e3a8a"/>' +
-      '<path d="M50 36 L56 50 L58 52 L56 54 L54 52 L48 42 Z" fill="#fde68a"/>' +
-      '<path d="M28 34 Q28 30 34 28 L46 28 Q52 30 52 34 L51 56 Q49 60 40 60 Q31 60 29 56 Z" fill="#fafafa"/>' +
-      '<path d="M30 30 L40 36 L50 30 L48 33 L40 38 L32 33 Z" fill="#dc2626"/>' +
-      '<rect x="29" y="53" width="22" height="3.5" fill="#1e3a8a"/>' +
-      '<rect x="38" y="52" width="4" height="6" fill="#fcd34d"/>' +
-      '<circle cx="40" cy="44" r="6.5" fill="#fef3c7"/>' +
-      '<text x="40" y="47" font-family="Arial Black,Inter,sans-serif" font-size="6.5" font-weight="900" fill="#dc2626" text-anchor="middle">S</text>' +
-      '<path d="M30 34 L24 18 L21 11 L24 9 L28 14 L32 28 L34 36 Z" fill="#fde68a"/>' +
-      '<circle cx="22.5" cy="10.5" r="4.5" fill="#dc2626"/>' +
-      '<path d="M19 9 Q22.5 6 26 9" stroke="#7f1d1d" stroke-width="0.6" fill="none"/>' +
-      '<circle cx="40" cy="22" r="9.5" fill="#fde68a"/>' +
-      '<path d="M30 16 Q30 7 40 6 Q50 7 50 16 L50 24 L48 22 Q46 14 40 14 Q34 14 32 22 L30 24 Z" fill="#1e293b"/>' +
-      '<ellipse cx="29" cy="20" rx="3.2" ry="5" fill="#1e293b"/>' +
-      '<ellipse cx="51" cy="20" rx="3.2" ry="5" fill="#1e293b"/>' +
-      '<circle cx="29" cy="24" r="1.4" fill="#fcd34d"/>' +
-      '<circle cx="51" cy="24" r="1.4" fill="#fcd34d"/>' +
-      '<path d="M32 16 Q34 10 40 9 Q46 10 48 16 Q46 13 42 12 Q40 14 39 14 Q38 14 36 12 Q34 13 32 16 Z" fill="#1e293b"/>' +
-      '<path d="M33 17.5 L47 17.5 Q48 18 47.5 20.5 Q45 21.5 42 21 Q40 19.5 40 19.5 Q40 19.5 38 21 Q35 21.5 32.5 20.5 Q32 18 33 17.5 Z" fill="#dc2626"/>' +
-      '<circle cx="35.5" cy="19.5" r="1.2" fill="#fff"/>' +
-      '<circle cx="44.5" cy="19.5" r="1.2" fill="#fff"/>' +
-      '<circle cx="35.6" cy="19.75" r="0.55" fill="#1a1a2e"/>' +
-      '<circle cx="44.6" cy="19.75" r="0.55" fill="#1a1a2e"/>' +
-      '<circle cx="35.85" cy="19.35" r="0.22" fill="#fff"/>' +
-      '<circle cx="44.85" cy="19.35" r="0.22" fill="#fff"/>' +
-      '<path d="M37.5 23.5 Q40 25 42.5 23.5" stroke="#7f1d1d" stroke-width="0.85" fill="none" stroke-linecap="round"/>' +
-      '<circle cx="33.5" cy="23" r="1.1" fill="#fda4af" opacity="0.7"/>' +
-      '<circle cx="46.5" cy="23" r="1.1" fill="#fda4af" opacity="0.7"/>' +
-      '<path d="M14 36 L4 38" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>' +
-      '<path d="M20 46 L8 50" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>' +
+    const h = Math.round(size * 1.2);
+    const id = 'g' + Math.random().toString(36).slice(2, 7);
+    return '<svg width="' + size + '" height="' + h + '" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">' +
+      '<defs>' +
+        '<linearGradient id="' + id + 'suit" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>' +
+        '<linearGradient id="' + id + 'cape" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#dc2626"/><stop offset="100%" stop-color="#7f1d1d"/></linearGradient>' +
+        '<radialGradient id="' + id + 'glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0%" stop-color="#fbbf24" stop-opacity="0.35"/><stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/></radialGradient>' +
+      '</defs>' +
+      // Halo
+      '<ellipse cx="50" cy="48" rx="44" ry="46" fill="url(#' + id + 'glow)"/>' +
+      // Floor shadow
+      '<ellipse cx="50" cy="108" rx="18" ry="2.5" fill="rgba(0,0,0,0.18)"/>' +
+      // Background sparkles
+      '<g font-family="Arial,sans-serif" font-weight="700">' +
+        '<text x="12" y="22" font-size="6" fill="#fbbf24" opacity="0.9">✦</text>' +
+        '<text x="84" y="18" font-size="5" fill="#fde68a" opacity="0.85">✦</text>' +
+        '<text x="14" y="78" font-size="5" fill="#fbbf24" opacity="0.8">✦</text>' +
+        '<text x="86" y="80" font-size="6" fill="#fde68a" opacity="0.85">✦</text>' +
+        '<text x="78" y="48" font-size="3.5" fill="#fff" opacity="0.85">✦</text>' +
+        '<text x="18" y="52" font-size="3" fill="#fff" opacity="0.7">✦</text>' +
+      '</g>' +
+      // Cape — two flowing panels (crimson gradient)
+      '<path d="M32 34 Q14 50 18 78 Q26 84 32 76 L42 52 Z" fill="url(#' + id + 'cape)"/>' +
+      '<path d="M68 34 Q86 50 82 78 Q74 84 68 76 L58 52 Z" fill="url(#' + id + 'cape)"/>' +
+      // Inner cape folds
+      '<path d="M32 34 L42 52 L38 58 L28 38 Z" fill="#7f1d1d" opacity="0.5"/>' +
+      '<path d="M68 34 L58 52 L62 58 L72 38 Z" fill="#7f1d1d" opacity="0.5"/>' +
+      // Legs
+      '<path d="M42 68 L38 92 L36 100 L41 100 L44 92 L46 70 Z" fill="#fde68a"/>' +
+      '<path d="M54 70 L56 92 L59 100 L64 100 L62 92 L58 68 Z" fill="#fde68a"/>' +
+      // Tall brown boots
+      '<rect x="33" y="86" width="14" height="18" rx="1.5" fill="#78350f"/>' +
+      '<rect x="33" y="86" width="14" height="2" fill="#92400e"/>' +
+      '<rect x="53" y="86" width="14" height="18" rx="1.5" fill="#78350f"/>' +
+      '<rect x="53" y="86" width="14" height="2" fill="#92400e"/>' +
+      // Orange suit
+      '<path d="M36 36 Q36 30 43 28 L57 28 Q64 30 64 36 L62 68 Q60 71 50 71 Q40 71 38 68 Z" fill="url(#' + id + 'suit)"/>' +
+      // V-neck
+      '<path d="M44 30 L50 38 L56 30" stroke="#c2410c" stroke-width="0.8" fill="none"/>' +
+      // Gold belt + red star buckle
+      '<rect x="36" y="61" width="28" height="5" fill="#fbbf24"/>' +
+      '<rect x="36" y="61" width="28" height="1.4" fill="#fde047"/>' +
+      '<polygon points="50,60 51.3,63 54.3,63 51.9,64.9 52.8,67.9 50,66.1 47.2,67.9 48.1,64.9 45.7,63 48.7,63" fill="#dc2626"/>' +
+      // S emblem
+      '<circle cx="50" cy="50" r="6.5" fill="#fde047" stroke="#dc2626" stroke-width="0.6"/>' +
+      '<text x="50" y="53" font-family="Arial Black,Inter,sans-serif" font-size="7.5" font-weight="900" fill="#7f1d1d" text-anchor="middle">S</text>' +
+      // Left arm (on hip)
+      '<path d="M36 38 Q30 46 31 56 L35 56 L40 46 Z" fill="url(#' + id + 'suit)"/>' +
+      '<rect x="29" y="54.5" width="6" height="3.5" rx="1" fill="#fbbf24"/>' +
+      '<rect x="29" y="54.5" width="6" height="1" fill="#fde047"/>' +
+      '<circle cx="32" cy="58" r="2.6" fill="#fde68a"/>' +
+      // Right arm (raised wave)
+      '<path d="M64 38 Q72 30 76 18 L80 21 L72 32 L67 42 Z" fill="url(#' + id + 'suit)"/>' +
+      '<rect x="74" y="18" width="6" height="3.5" rx="1" fill="#fbbf24" transform="rotate(-45 77 19.75)"/>' +
+      '<circle cx="78" cy="20" r="3.1" fill="#fde68a"/>' +
+      // Head
+      '<circle cx="50" cy="22" r="11" fill="#fde68a"/>' +
+      // Auburn hair back layer
+      '<path d="M38 18 Q38 7 50 6 Q62 7 62 18 L62 30 L60 28 Q58 18 50 18 Q42 18 40 28 L38 30 Z" fill="#7c2d12"/>' +
+      // Flowing pigtails
+      '<path d="M38 18 Q31 24 30 38 Q35 42 39 32 Z" fill="#7c2d12"/>' +
+      '<path d="M62 18 Q69 24 70 38 Q65 42 61 32 Z" fill="#7c2d12"/>' +
+      // Gold hair ties
+      '<circle cx="33" cy="36" r="1.8" fill="#fbbf24"/>' +
+      '<circle cx="67" cy="36" r="1.8" fill="#fbbf24"/>' +
+      // Fringe + copper highlight
+      '<path d="M40 13 Q44 8 50 7 Q56 8 60 13 Q57 11 53 10 Q51 13 50 13 Q49 13 47 10 Q43 11 40 13 Z" fill="#7c2d12"/>' +
+      '<path d="M43 11 Q47 8 50 8 Q53 8 57 11" stroke="#b45309" stroke-width="0.9" fill="none" opacity="0.85"/>' +
+      // Golden tiara with red star
+      '<path d="M39 11 Q50 7.5 61 11 L61 13 Q50 9.5 39 13 Z" fill="#fbbf24"/>' +
+      '<path d="M39 11 Q50 7.5 61 11 L61 12 Q50 8.5 39 12 Z" fill="#fde047"/>' +
+      '<polygon points="50,6.5 51,9 53.5,9 51.5,10.5 52.2,13 50,11.5 47.8,13 48.5,10.5 46.5,9 49,9" fill="#dc2626"/>' +
+      // Eyebrows
+      '<path d="M42 17.8 Q44.5 16.5 47 17.5" stroke="#451a03" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
+      '<path d="M53 17.5 Q55.5 16.5 58 17.8" stroke="#451a03" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
+      // Eyes (amber iris)
+      '<ellipse cx="45" cy="21" rx="2" ry="2.3" fill="#fff"/>' +
+      '<ellipse cx="55" cy="21" rx="2" ry="2.3" fill="#fff"/>' +
+      '<circle cx="45" cy="21.3" r="1.4" fill="#854d0e"/>' +
+      '<circle cx="55" cy="21.3" r="1.4" fill="#854d0e"/>' +
+      '<circle cx="45" cy="21.3" r="0.7" fill="#0f172a"/>' +
+      '<circle cx="55" cy="21.3" r="0.7" fill="#0f172a"/>' +
+      '<circle cx="45.6" cy="20.6" r="0.45" fill="#fff"/>' +
+      '<circle cx="55.6" cy="20.6" r="0.45" fill="#fff"/>' +
+      // Eyelashes
+      '<path d="M43.2 19.3 L42.5 18.8" stroke="#451a03" stroke-width="0.45" stroke-linecap="round"/>' +
+      '<path d="M46.8 19.3 L47.5 18.8" stroke="#451a03" stroke-width="0.45" stroke-linecap="round"/>' +
+      '<path d="M53.2 19.3 L52.5 18.8" stroke="#451a03" stroke-width="0.45" stroke-linecap="round"/>' +
+      '<path d="M56.8 19.3 L57.5 18.8" stroke="#451a03" stroke-width="0.45" stroke-linecap="round"/>' +
+      // Nose hint
+      '<path d="M50 24 Q49.5 25.2 50 25.8 Q50.5 25.2 50 24" fill="#c2410c" opacity="0.55"/>' +
+      // Smile + lip
+      '<path d="M46.5 27 Q50 29.2 53.5 27" stroke="#7f1d1d" stroke-width="1" fill="none" stroke-linecap="round"/>' +
+      '<path d="M47.5 28 Q50 28.6 52.5 28" stroke="#dc2626" stroke-width="0.5" fill="none" opacity="0.6"/>' +
+      // Orange blush
+      '<ellipse cx="42" cy="25" rx="1.8" ry="1.1" fill="#fb923c" opacity="0.65"/>' +
+      '<ellipse cx="58" cy="25" rx="1.8" ry="1.1" fill="#fb923c" opacity="0.65"/>' +
       '</svg>';
   }
 
   function shellyHeadSvg(size) {
     size = size || 26;
+    const id = 'h' + Math.random().toString(36).slice(2, 7);
     return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">' +
-      // hair back
-      '<path d="M5 13 Q5 4 16 3 Q27 4 27 13 L27 20 L25 18 Q24 11 16 11 Q8 11 7 18 L5 20 Z" fill="#1e293b"/>' +
-      // hair highlight
-      '<path d="M10 7 Q13 5 16 5 Q19 5 22 7" stroke="#64748b" stroke-width="0.5" fill="none" opacity="0.6"/>' +
-      // face
+      '<defs><radialGradient id="' + id + 'g" cx="0.5" cy="0.5" r="0.5"><stop offset="0%" stop-color="#fbbf24" stop-opacity="0.3"/><stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/></radialGradient></defs>' +
+      '<circle cx="16" cy="16" r="15" fill="url(#' + id + 'g)"/>' +
+      // Auburn hair back
+      '<path d="M5 13 Q5 4 16 3 Q27 4 27 13 L27 21 L25 19 Q24 12 16 12 Q8 12 7 19 L5 21 Z" fill="#7c2d12"/>' +
+      // Pigtails
+      '<path d="M5 13 Q1 18 2 26 Q5 28 7 22 Z" fill="#7c2d12"/>' +
+      '<path d="M27 13 Q31 18 30 26 Q27 28 25 22 Z" fill="#7c2d12"/>' +
+      '<circle cx="3" cy="24" r="1.3" fill="#fbbf24"/>' +
+      '<circle cx="29" cy="24" r="1.3" fill="#fbbf24"/>' +
+      // Face
       '<circle cx="16" cy="14" r="8" fill="#fde68a"/>' +
-      // pigtails
-      '<ellipse cx="4" cy="14" rx="2.5" ry="4" fill="#1e293b"/>' +
-      '<ellipse cx="28" cy="14" rx="2.5" ry="4" fill="#1e293b"/>' +
-      '<circle cx="4" cy="17.5" r="1.1" fill="#fcd34d"/>' +
-      '<circle cx="28" cy="17.5" r="1.1" fill="#fcd34d"/>' +
-      // fringe
-      '<path d="M9 10 Q11 5 16 4 Q21 5 23 10 Q21 8 18 7 Q17 9.5 16 9.5 Q15 9.5 14 7 Q11 8 9 10 Z" fill="#1e293b"/>' +
-      // eyebrows (NEW — adds expression)
-      '<path d="M10.5 12.2 Q11.5 11.5 12.8 12" stroke="#1e293b" stroke-width="0.7" fill="none" stroke-linecap="round"/>' +
-      '<path d="M19.2 12 Q20.5 11.5 21.5 12.2" stroke="#1e293b" stroke-width="0.7" fill="none" stroke-linecap="round"/>' +
-      // mask
-      '<path d="M8 13 L24 13 Q25 13.5 24.5 15.8 Q22 16.8 19 16.2 Q17 14.8 16 14.8 Q15 14.8 13 16.2 Q10 16.8 7.5 15.8 Q7 13.5 8 13 Z" fill="#dc2626"/>' +
-      // eye whites
-      '<ellipse cx="11.5" cy="14.6" rx="1.3" ry="1.4" fill="#fff"/>' +
-      '<ellipse cx="20.5" cy="14.6" rx="1.3" ry="1.4" fill="#fff"/>' +
-      // iris (blue)
-      '<circle cx="11.5" cy="14.85" r="0.85" fill="#1d4ed8"/>' +
-      '<circle cx="20.5" cy="14.85" r="0.85" fill="#1d4ed8"/>' +
-      // pupil
-      '<circle cx="11.5" cy="14.85" r="0.45" fill="#0f172a"/>' +
-      '<circle cx="20.5" cy="14.85" r="0.45" fill="#0f172a"/>' +
-      // sparkle
-      '<circle cx="11.85" cy="14.45" r="0.28" fill="#fff"/>' +
-      '<circle cx="20.85" cy="14.45" r="0.28" fill="#fff"/>' +
-      // nose hint
-      '<path d="M16 17 Q15.7 17.7 16 18.2 Q16.3 17.7 16 17" fill="#f59e0b" opacity="0.4"/>' +
-      // smile
-      '<path d="M13.2 18.9 Q16 20.4 18.8 18.9" stroke="#7f1d1d" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
-      // cheek blush
-      '<ellipse cx="9" cy="17.6" rx="1.4" ry="0.9" fill="#fda4af" opacity="0.7"/>' +
-      '<ellipse cx="23" cy="17.6" rx="1.4" ry="0.9" fill="#fda4af" opacity="0.7"/>' +
+      // Fringe
+      '<path d="M9 10 Q11 5 16 4 Q21 5 23 10 Q21 8 18 7 Q17 9.5 16 9.5 Q15 9.5 14 7 Q11 8 9 10 Z" fill="#7c2d12"/>' +
+      // Copper highlight
+      '<path d="M11 7.5 Q13 6 16 6 Q19 6 21 7.5" stroke="#b45309" stroke-width="0.6" fill="none" opacity="0.85"/>' +
+      // Golden tiara + red star
+      '<path d="M9 7.5 Q16 5 23 7.5 L23 9 Q16 6.5 9 9 Z" fill="#fbbf24"/>' +
+      '<polygon points="16,4 16.6,5.6 18.2,5.6 16.9,6.6 17.4,8.2 16,7.2 14.6,8.2 15.1,6.6 13.8,5.6 15.4,5.6" fill="#dc2626"/>' +
+      // Eyebrows
+      '<path d="M10.5 12.2 Q11.7 11.3 13 12" stroke="#451a03" stroke-width="0.7" fill="none" stroke-linecap="round"/>' +
+      '<path d="M19 12 Q20.3 11.3 21.5 12.2" stroke="#451a03" stroke-width="0.7" fill="none" stroke-linecap="round"/>' +
+      // Eyes (amber)
+      '<ellipse cx="11.5" cy="14.6" rx="1.4" ry="1.5" fill="#fff"/>' +
+      '<ellipse cx="20.5" cy="14.6" rx="1.4" ry="1.5" fill="#fff"/>' +
+      '<circle cx="11.5" cy="14.85" r="0.95" fill="#854d0e"/>' +
+      '<circle cx="20.5" cy="14.85" r="0.95" fill="#854d0e"/>' +
+      '<circle cx="11.5" cy="14.85" r="0.5" fill="#0f172a"/>' +
+      '<circle cx="20.5" cy="14.85" r="0.5" fill="#0f172a"/>' +
+      '<circle cx="11.9" cy="14.4" r="0.32" fill="#fff"/>' +
+      '<circle cx="20.9" cy="14.4" r="0.32" fill="#fff"/>' +
+      // Nose
+      '<path d="M16 17 Q15.7 17.7 16 18.3 Q16.3 17.7 16 17" fill="#c2410c" opacity="0.55"/>' +
+      // Smile
+      '<path d="M13.2 19 Q16 20.6 18.8 19" stroke="#7f1d1d" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
+      '<path d="M14 19.7 Q16 20.1 18 19.7" stroke="#dc2626" stroke-width="0.4" fill="none" opacity="0.55"/>' +
+      // Orange blush
+      '<ellipse cx="9" cy="17.6" rx="1.5" ry="0.9" fill="#fb923c" opacity="0.7"/>' +
+      '<ellipse cx="23" cy="17.6" rx="1.5" ry="0.9" fill="#fb923c" opacity="0.7"/>' +
       '</svg>';
   }
 
-  // Portrait avatar — distinctly different from the round head crop. Used in the
-  // chat panel header so the "DP" feels like a real profile picture, not a tiny icon.
-  // Larger viewBox, soft pink-purple-indigo gradient backdrop, more refined face
-  // (bigger eyes with iris, eyebrows, nose, lip detail, blush, a sparkle).
+  // Portrait avatar — the chat panel header DP. Cream backdrop + auburn hair
+  // + golden tiara + amber eyes — matches her costume colours.
   function shellyPortraitSvg(size) {
     size = size || 56;
-    const gid = 'sp-' + Math.random().toString(36).slice(2, 8);
+    const id = 'p' + Math.random().toString(36).slice(2, 7);
     return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">' +
       '<defs>' +
-        '<linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
-          '<stop offset="0%" stop-color="#fbcfe8"/>' +
-          '<stop offset="50%" stop-color="#e9d5ff"/>' +
-          '<stop offset="100%" stop-color="#c7d2fe"/>' +
-        '</linearGradient>' +
+        '<linearGradient id="' + id + 'bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fed7aa"/></linearGradient>' +
+        '<radialGradient id="' + id + 'h" cx="0.5" cy="0.5" r="0.6"><stop offset="0%" stop-color="#fff" stop-opacity="0.6"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
+        '<linearGradient id="' + id + 'suit" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>' +
       '</defs>' +
-      // backdrop (rounded card)
-      '<rect width="72" height="72" rx="16" fill="url(#' + gid + ')"/>' +
-      // sparkle decorations on backdrop
-      '<text x="58" y="20" font-family="Arial,sans-serif" font-size="7" fill="#fcd34d" opacity="0.9">✦</text>' +
-      '<text x="8" y="56" font-family="Arial,sans-serif" font-size="5" fill="#fff" opacity="0.7">✦</text>' +
-      // distant cape peek behind shoulders
-      '<path d="M10 56 Q4 64 12 72 L22 66 Z" fill="#dc2626" opacity="0.9"/>' +
-      '<path d="M62 56 Q68 64 60 72 L50 66 Z" fill="#dc2626" opacity="0.9"/>' +
-      // upper body / suit
-      '<path d="M16 70 Q16 50 36 46 Q56 50 56 70 L56 72 L16 72 Z" fill="#fafafa"/>' +
-      // red collar
-      '<path d="M22 52 Q30 58 36 60 Q42 58 50 52 L46 60 L36 66 L26 60 Z" fill="#dc2626"/>' +
-      // S emblem on chest
-      '<circle cx="36" cy="66" r="4" fill="#fef3c7"/>' +
-      '<text x="36" y="68.2" font-family="Arial Black,Inter,sans-serif" font-size="4.5" font-weight="900" fill="#dc2626" text-anchor="middle">S</text>' +
-      // hair back layer
-      '<path d="M14 34 Q14 12 36 10 Q58 12 58 34 L58 50 L54 46 Q52 30 36 30 Q20 30 18 46 L14 50 Z" fill="#1e293b"/>' +
-      // hair highlight
-      '<path d="M28 16 Q32 13 36 13 Q40 13 44 16" stroke="#64748b" stroke-width="0.9" fill="none" opacity="0.7"/>' +
-      // neck
+      // Cream backdrop with subtle radial highlight
+      '<rect width="72" height="72" rx="16" fill="url(#' + id + 'bg)"/>' +
+      '<ellipse cx="36" cy="36" rx="28" ry="30" fill="url(#' + id + 'h)"/>' +
+      // Sparkles on backdrop
+      '<g font-family="Arial,sans-serif" font-weight="700">' +
+        '<text x="56" y="18" font-size="7" fill="#fde047" opacity="0.95">✦</text>' +
+        '<text x="9" y="58" font-size="5" fill="#fff" opacity="0.85">✦</text>' +
+        '<text x="60" y="56" font-size="4" fill="#fde68a" opacity="0.85">✦</text>' +
+      '</g>' +
+      // Cape peek (crimson)
+      '<path d="M10 56 Q4 64 12 72 L22 66 Z" fill="#dc2626"/>' +
+      '<path d="M62 56 Q68 64 60 72 L50 66 Z" fill="#dc2626"/>' +
+      // Orange suit shoulders
+      '<path d="M16 70 Q16 50 36 46 Q56 50 56 70 L56 72 L16 72 Z" fill="url(#' + id + 'suit)"/>' +
+      '<path d="M28 56 L36 64 L44 56" stroke="#c2410c" stroke-width="0.7" fill="none"/>' +
+      // S emblem
+      '<circle cx="36" cy="66" r="4" fill="#fde047" stroke="#dc2626" stroke-width="0.4"/>' +
+      '<text x="36" y="68.4" font-family="Arial Black,Inter,sans-serif" font-size="4.5" font-weight="900" fill="#7f1d1d" text-anchor="middle">S</text>' +
+      // Auburn hair back layer
+      '<path d="M14 34 Q14 12 36 10 Q58 12 58 34 L58 50 L54 46 Q52 30 36 30 Q20 30 18 46 L14 50 Z" fill="#7c2d12"/>' +
+      // Pigtails
+      '<path d="M14 34 Q8 40 9 54 Q14 58 17 44 Z" fill="#7c2d12"/>' +
+      '<path d="M58 34 Q64 40 63 54 Q58 58 55 44 Z" fill="#7c2d12"/>' +
+      '<circle cx="11" cy="50" r="1.6" fill="#fbbf24"/>' +
+      '<circle cx="61" cy="50" r="1.6" fill="#fbbf24"/>' +
+      // Neck
       '<rect x="32" y="42" width="8" height="6" fill="#fde68a"/>' +
-      '<path d="M32 44 L40 44 L39 46 L33 46 Z" fill="#d97706" opacity="0.25"/>' +
-      // face
+      '<path d="M32 44 L40 44 L39 46 L33 46 Z" fill="#c2410c" opacity="0.25"/>' +
+      // Face
       '<circle cx="36" cy="32" r="13" fill="#fde68a"/>' +
-      // pigtails
-      '<ellipse cx="12" cy="34" rx="4" ry="6.5" fill="#1e293b"/>' +
-      '<ellipse cx="60" cy="34" rx="4" ry="6.5" fill="#1e293b"/>' +
-      '<circle cx="12" cy="41" r="1.8" fill="#fcd34d"/>' +
-      '<circle cx="60" cy="41" r="1.8" fill="#fcd34d"/>' +
-      // fringe
-      '<path d="M24 24 Q28 14 36 12 Q44 14 48 24 Q45 21 41 19 Q38 22 36 22 Q34 22 31 19 Q27 21 24 24 Z" fill="#1e293b"/>' +
-      // eyebrows
-      '<path d="M27 28.5 Q29.5 27 32 28" stroke="#1e293b" stroke-width="1" fill="none" stroke-linecap="round"/>' +
-      '<path d="M40 28 Q42.5 27 45 28.5" stroke="#1e293b" stroke-width="1" fill="none" stroke-linecap="round"/>' +
-      // mask
-      '<path d="M24 30 L48 30 Q49 30.5 48.5 33.5 Q46 34.8 42 34 Q39 32 36 32 Q33 32 30 34 Q26 34.8 23.5 33.5 Q23 30.5 24 30 Z" fill="#dc2626"/>' +
-      // bigger eyes with iris
-      '<ellipse cx="30" cy="32" rx="2" ry="2.3" fill="#fff"/>' +
-      '<ellipse cx="42" cy="32" rx="2" ry="2.3" fill="#fff"/>' +
-      '<circle cx="30" cy="32.3" r="1.4" fill="#1d4ed8"/>' +
-      '<circle cx="42" cy="32.3" r="1.4" fill="#1d4ed8"/>' +
-      '<circle cx="30" cy="32.3" r="0.7" fill="#0f172a"/>' +
-      '<circle cx="42" cy="32.3" r="0.7" fill="#0f172a"/>' +
-      // sparkles in eyes
-      '<circle cx="30.6" cy="31.6" r="0.45" fill="#fff"/>' +
-      '<circle cx="42.6" cy="31.6" r="0.45" fill="#fff"/>' +
-      '<circle cx="29.4" cy="32.9" r="0.2" fill="#fff" opacity="0.7"/>' +
-      '<circle cx="41.4" cy="32.9" r="0.2" fill="#fff" opacity="0.7"/>' +
-      // nose hint
-      '<path d="M36 35 Q35.3 36.3 36 37 Q36.7 36.3 36 35" fill="#f59e0b" opacity="0.45"/>' +
-      // smile
-      '<path d="M31.5 39.5 Q36 41.5 40.5 39.5" stroke="#7f1d1d" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
-      // lower lip
-      '<path d="M33 40.5 Q36 41.2 39 40.5" stroke="#dc2626" stroke-width="0.5" fill="none" opacity="0.55"/>' +
-      // cheek blush
-      '<ellipse cx="26" cy="38" rx="2" ry="1.3" fill="#fda4af" opacity="0.7"/>' +
-      '<ellipse cx="46" cy="38" rx="2" ry="1.3" fill="#fda4af" opacity="0.7"/>' +
+      // Fringe + copper highlight
+      '<path d="M24 24 Q28 14 36 12 Q44 14 48 24 Q45 21 41 19 Q38 22 36 22 Q34 22 31 19 Q27 21 24 24 Z" fill="#7c2d12"/>' +
+      '<path d="M28 16 Q32 13 36 13 Q40 13 44 16" stroke="#b45309" stroke-width="1" fill="none" opacity="0.85"/>' +
+      // Golden tiara with red star
+      '<path d="M23 15 Q36 11 49 15 L49 17 Q36 13 23 17 Z" fill="#fbbf24"/>' +
+      '<polygon points="36,9 37.2,12 40.5,12 38,13.8 38.8,17 36,15.2 33.2,17 34,13.8 31.5,12 34.8,12" fill="#dc2626"/>' +
+      // Eyebrows
+      '<path d="M27 28.5 Q29.5 27 32 28" stroke="#451a03" stroke-width="1" fill="none" stroke-linecap="round"/>' +
+      '<path d="M40 28 Q42.5 27 45 28.5" stroke="#451a03" stroke-width="1" fill="none" stroke-linecap="round"/>' +
+      // Amber eyes
+      '<ellipse cx="30" cy="32" rx="2.1" ry="2.4" fill="#fff"/>' +
+      '<ellipse cx="42" cy="32" rx="2.1" ry="2.4" fill="#fff"/>' +
+      '<circle cx="30" cy="32.3" r="1.5" fill="#854d0e"/>' +
+      '<circle cx="42" cy="32.3" r="1.5" fill="#854d0e"/>' +
+      '<circle cx="30" cy="32.3" r="0.75" fill="#0f172a"/>' +
+      '<circle cx="42" cy="32.3" r="0.75" fill="#0f172a"/>' +
+      '<circle cx="30.7" cy="31.5" r="0.55" fill="#fff"/>' +
+      '<circle cx="42.7" cy="31.5" r="0.55" fill="#fff"/>' +
+      // Eyelashes
+      '<path d="M28 30.2 L27.4 29.6" stroke="#451a03" stroke-width="0.6" stroke-linecap="round"/>' +
+      '<path d="M32 30.2 L32.6 29.6" stroke="#451a03" stroke-width="0.6" stroke-linecap="round"/>' +
+      '<path d="M40 30.2 L39.4 29.6" stroke="#451a03" stroke-width="0.6" stroke-linecap="round"/>' +
+      '<path d="M44 30.2 L44.6 29.6" stroke="#451a03" stroke-width="0.6" stroke-linecap="round"/>' +
+      // Nose + smile + lip
+      '<path d="M36 35 Q35.3 36.3 36 37 Q36.7 36.3 36 35" fill="#c2410c" opacity="0.55"/>' +
+      '<path d="M31.5 39.5 Q36 41.7 40.5 39.5" stroke="#7f1d1d" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
+      '<path d="M33 40.5 Q36 41.2 39 40.5" stroke="#dc2626" stroke-width="0.5" fill="none" opacity="0.6"/>' +
+      // Orange blush
+      '<ellipse cx="26" cy="38" rx="2.1" ry="1.4" fill="#fb923c" opacity="0.75"/>' +
+      '<ellipse cx="46" cy="38" rx="2.1" ry="1.4" fill="#fb923c" opacity="0.75"/>' +
       '</svg>';
   }
 
@@ -178,7 +238,7 @@
     const style = document.createElement('style');
     style.textContent = [
       '.shelly-bubble{position:fixed;bottom:18px;right:18px;background:none;border:none;padding:0;cursor:pointer;z-index:9998;display:block;font-family:Inter,sans-serif;animation:shelly-float 3.6s ease-in-out infinite;}',
-      '.shelly-bubble svg{display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(124,58,237,0.45)) drop-shadow(0 2px 3px rgba(0,0,0,0.18));}',
+      '.shelly-bubble svg{display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(234,88,12,0.4)) drop-shadow(0 2px 3px rgba(0,0,0,0.18));}',
       '.shelly-bubble:hover{transform:translateY(-4px) scale(1.06);}',
       '.shelly-bubble:active{transform:translateY(-1px) scale(1.02);}',
       '.shelly-bubble.pulse{animation:shelly-bounce 1s ease 2,shelly-float 3.6s ease-in-out infinite 2s;}',
@@ -188,25 +248,25 @@
       '.shelly-panel{position:fixed;bottom:120px;right:20px;width:380px;max-width:calc(100vw - 28px);height:540px;max-height:calc(100vh - 140px);background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(0,0,0,0.22);display:flex;flex-direction:column;z-index:9999;overflow:hidden;font-family:Inter,sans-serif;transform-origin:bottom right;animation:shelly-pop 200ms ease;}',
       '@keyframes shelly-pop{from{opacity:0;transform:scale(0.92) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}',
       '.shelly-panel.hidden{display:none;}',
-      '.shelly-hdr{padding:14px 16px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;display:flex;align-items:center;gap:10px;}',
-      '.shelly-hdr-avatar{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;flex-shrink:0;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.15);}',
+      '.shelly-hdr{padding:14px 16px;background:#fff;color:#1a1a2e;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #f3f4f6;}',
+      '.shelly-hdr-avatar{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;flex-shrink:0;overflow:hidden;box-shadow:0 4px 12px rgba(234,88,12,0.18);}',
       '.shelly-hdr-info{flex:1;min-width:0;}',
-      '.shelly-hdr-info h4{font-size:14px;font-weight:700;margin:0;}',
-      '.shelly-hdr-info p{font-size:11px;opacity:0.9;margin:2px 0 0;display:flex;align-items:center;gap:5px;}',
-      '.shelly-dot{width:7px;height:7px;border-radius:50%;background:#34d399;display:inline-block;}',
-      '.shelly-menu-btn{color:#fff;font-size:14px;line-height:1;cursor:pointer;background:none;border:none;padding:0;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px;}',
-      '.shelly-menu-btn:hover{background:rgba(255,255,255,0.15);}',
+      '.shelly-hdr-info h4{font-size:14.5px;font-weight:700;margin:0;color:#1a1a2e;}',
+      '.shelly-hdr-info p{font-size:11px;color:#6b7280;margin:2px 0 0;display:flex;align-items:center;gap:5px;}',
+      '.shelly-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;}',
+      '.shelly-menu-btn{color:#9ca3af;font-size:14px;line-height:1;cursor:pointer;background:none;border:none;padding:0;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px;}',
+      '.shelly-menu-btn:hover{background:#f3f4f6;color:#1a1a2e;}',
       '.shelly-list{flex:1;overflow-y:auto;padding:14px;background:#f9fafb;display:flex;flex-direction:column;gap:12px;}',
       '.shelly-list::-webkit-scrollbar{width:6px;}.shelly-list::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:99px;}',
       '.shelly-msg{display:flex;gap:8px;align-items:flex-start;animation:shelly-fade 280ms ease;}',
       '@keyframes shelly-fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}',
-      '.shelly-msg-avatar{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fce7f3,#f5d0fe);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #fff;box-shadow:0 1px 4px rgba(124,58,237,0.18);overflow:hidden;}',
+      '.shelly-msg-avatar{width:30px;height:30px;border-radius:50%;background:#fffbeb;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #fff;box-shadow:0 1px 4px rgba(234,88,12,0.18);overflow:hidden;}',
       '.shelly-msg-body{max-width:260px;}',
       '.shelly-bubble-text{background:#fff;border:1px solid #e5e7eb;border-radius:14px;border-top-left-radius:4px;padding:10px 13px;font-size:13px;color:#1a1a2e;line-height:1.5;}',
       '.shelly-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}',
-      '.shelly-action{padding:6px 12px;border-radius:99px;border:1px solid #c4b5fd;background:#f5f3ff;color:#5b21b6;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 150ms;}',
-      '.shelly-action:hover{background:#ede9fe;border-color:#a78bfa;}',
-      '.shelly-action.primary{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-color:transparent;}',
+      '.shelly-action{padding:6px 12px;border-radius:99px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 150ms;}',
+      '.shelly-action:hover{background:#ffedd5;border-color:#fdba74;}',
+      '.shelly-action.primary{background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff;border-color:transparent;}',
       '.shelly-action.primary:hover{filter:brightness(1.08);}',
       '.shelly-typing{display:flex;gap:4px;padding:10px 13px;background:#fff;border:1px solid #e5e7eb;border-radius:14px;border-top-left-radius:4px;width:fit-content;}',
       '.shelly-typing span{width:6px;height:6px;border-radius:50%;background:#9ca3af;animation:shelly-bob 0.9s infinite ease-in-out;}',
@@ -214,17 +274,17 @@
       '.shelly-typing span:nth-child(3){animation-delay:0.3s;}',
       '@keyframes shelly-bob{0%,80%,100%{transform:translateY(0);opacity:0.4;}40%{transform:translateY(-4px);opacity:1;}}',
       '.shelly-suggestions{display:flex;gap:6px;padding:8px 14px 0;background:#fff;border-top:1px solid #e5e7eb;flex-wrap:wrap;}',
-      '.shelly-chip{padding:5px 10px;border-radius:99px;border:1px solid #e5e7eb;background:#f9fafb;color:#374151;font-size:11.5px;font-weight:500;cursor:pointer;font-family:inherit;}',
-      '.shelly-chip:hover{background:#f3f4f6;border-color:#c4b5fd;color:#5b21b6;}',
+      '.shelly-chip{padding:5px 10px;border-radius:99px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;}',
+      '.shelly-chip:hover{background:#ffedd5;border-color:#fdba74;}',
       '.shelly-compose{display:flex;gap:8px;padding:10px 14px;background:#fff;border-top:1px solid #e5e7eb;align-items:center;}',
       '.shelly-input{flex:1;border:1.5px solid #e5e7eb;border-radius:99px;padding:8px 14px;font-size:13px;outline:none;background:#f9fafb;transition:all 150ms;font-family:inherit;color:#1a1a2e;}',
-      '.shelly-input:focus{border-color:#7c3aed;background:#fff;}',
-      '.shelly-send{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;transition:transform 150ms;}',
+      '.shelly-input:focus{border-color:#fb923c;background:#fff;}',
+      '.shelly-send{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;transition:transform 150ms;}',
       '.shelly-send:hover{transform:scale(1.06);}',
       '.shelly-msg.user{justify-content:flex-end;}',
       '.shelly-msg.user .shelly-msg-avatar{order:2;background:#1e2130;}',
       '.shelly-msg.user .shelly-msg-body{order:1;}',
-      '.shelly-msg.user .shelly-bubble-text{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-color:transparent;border-radius:14px;border-top-right-radius:4px;border-top-left-radius:14px;}',
+      '.shelly-msg.user .shelly-bubble-text{background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff;border-color:transparent;border-radius:14px;border-top-right-radius:4px;border-top-left-radius:14px;}',
       '.shelly-menu{position:absolute;top:50px;right:12px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:6px;z-index:10000;min-width:170px;font-size:13px;}',
       '.shelly-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;background:none;border-radius:6px;cursor:pointer;font:inherit;color:#1a1a2e;text-align:left;}',
       '.shelly-menu button:hover{background:#f3f4f6;}',
@@ -232,7 +292,7 @@
       // ===== Rich inline cards =====
       '.ss-cards{margin-top:8px;display:flex;flex-direction:column;gap:6px;}',
       '.ss-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 150ms;font-size:12.5px;}',
-      '.ss-card:hover{border-color:#7c3aed;background:#faf5ff;transform:translateX(2px);}',
+      '.ss-card:hover{border-color:#fb923c;background:#fff7ed;transform:translateX(2px);}',
       '.ss-card .av{width:32px;height:32px;border-radius:50%;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}',
       '.ss-card .info{flex:1;min-width:0;}',
       '.ss-card .info .nm{font-weight:600;font-size:13px;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
@@ -241,7 +301,7 @@
       '.ss-card .pill.green{background:#dcfce7;color:#166534;} .ss-card .pill.yellow{background:#fef3c7;color:#92400e;} .ss-card .pill.red{background:#fee2e2;color:#991b1b;} .ss-card .pill.blue{background:#dbeafe;color:#1e40af;} .ss-card .pill.purple{background:#ede9fe;color:#5b21b6;}',
       '.ss-card .arrow{color:#9ca3af;font-size:14px;flex-shrink:0;}',
       '.ss-card .bar{flex:1;height:5px;background:#f3f4f6;border-radius:99px;overflow:hidden;min-width:60px;max-width:90px;}',
-      '.ss-card .bar > span{display:block;height:100%;background:linear-gradient(90deg,#7c3aed,#2563eb);border-radius:99px;}',
+      '.ss-card .bar > span{display:block;height:100%;background:linear-gradient(90deg,#fb923c,#ea580c);border-radius:99px;}',
       // Sparkline
       '.ss-spark{display:inline-block;vertical-align:middle;margin-left:6px;}',
       // Undo toast variant
@@ -263,11 +323,11 @@
       '.shelly-search{padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb;display:none;}',
       '.shelly-search.open{display:block;}',
       '.shelly-search input{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 10px;font-size:12.5px;outline:none;font-family:inherit;}',
-      '.shelly-search input:focus{border-color:#7c3aed;}',
+      '.shelly-search input:focus{border-color:#fb923c;}',
       '.shelly-search-results{margin-top:6px;max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}',
       '.shelly-search-row{padding:6px 8px;border-radius:6px;font-size:12px;cursor:pointer;color:#1a1a2e;}',
       '.shelly-search-row:hover{background:#f3f4f6;}',
-      '.shelly-search-row .kind{display:inline-block;font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.4px;margin-right:6px;}',
+      '.shelly-search-row .kind{display:inline-block;font-size:10px;font-weight:700;color:#ea580c;text-transform:uppercase;letter-spacing:0.4px;margin-right:6px;}',
       // Compact mode (small bubble-like view)
       '.shelly-panel.compact{height:auto;max-height:none;width:280px;}',
       '.shelly-panel.compact .shelly-list{display:none;}',
@@ -275,38 +335,38 @@
       '.shelly-panel.compact .shelly-search{display:none;}',
       '.shelly-panel.compact .shelly-pinned-strip{display:none;}',
       // Welcome overlay (full-screen, multi-slide intro on every fresh login)
-      '.shelly-welcome{position:fixed;inset:0;background:linear-gradient(135deg,#7c3aed 0%,#2563eb 60%,#0ea5e9 100%);z-index:10010;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,sans-serif;color:#fff;padding:24px;animation:wel-fade 360ms ease;}',
+      '.shelly-welcome{position:fixed;inset:0;background:linear-gradient(135deg,#fff 0%,#fef3c7 50%,#fed7aa 100%);z-index:10010;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,sans-serif;color:#1a1a2e;padding:24px;animation:wel-fade 360ms ease;}',
       '@keyframes wel-fade{from{opacity:0;}to{opacity:1;}}',
       '.shelly-welcome.exit{animation:wel-out 420ms ease forwards;}',
       '@keyframes wel-out{to{opacity:0;transform:scale(1.05);}}',
-      '.shelly-welcome::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,255,255,0.18),transparent 50%),radial-gradient(ellipse at 80% 70%,rgba(255,255,255,0.12),transparent 50%);pointer-events:none;}',
-      '.wel-skip{position:absolute;top:18px;right:24px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);}',
-      '.wel-skip:hover{background:rgba(255,255,255,0.22);}',
+      '.shelly-welcome::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(252,191,36,0.25),transparent 50%),radial-gradient(ellipse at 80% 70%,rgba(251,146,60,0.18),transparent 50%);pointer-events:none;}',
+      '.wel-skip{position:absolute;top:18px;right:24px;background:rgba(255,255,255,0.85);border:1px solid rgba(234,88,12,0.18);color:#c2410c;padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);box-shadow:0 4px 12px rgba(234,88,12,0.12);}',
+      '.wel-skip:hover{background:#fff;border-color:rgba(234,88,12,0.3);}',
       '.wel-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:560px;text-align:center;animation:wel-slide 420ms ease;}',
       '@keyframes wel-slide{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}',
       '.wel-avatar{margin-bottom:16px;animation:wel-bob 3.6s ease-in-out infinite;filter:drop-shadow(0 12px 22px rgba(0,0,0,0.35));}',
       '@keyframes wel-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}',
-      '.wel-title{font-size:34px;font-weight:800;line-height:1.1;letter-spacing:-0.5px;margin-bottom:10px;}',
-      '.wel-sub{font-size:16px;opacity:0.92;line-height:1.45;max-width:480px;margin-bottom:24px;}',
+      '.wel-title{font-size:34px;font-weight:800;line-height:1.1;letter-spacing:-0.5px;margin-bottom:10px;color:#1a1a2e;}',
+      '.wel-sub{font-size:16px;color:#4b5563;line-height:1.45;max-width:480px;margin-bottom:24px;}',
       '.wel-input-wrap{width:100%;max-width:360px;margin-bottom:18px;}',
-      '.wel-input{width:100%;border:none;border-radius:14px;padding:14px 18px;font-size:16px;font-family:inherit;background:rgba(255,255,255,0.96);color:#1a1a2e;outline:none;box-shadow:0 8px 24px rgba(0,0,0,0.18);}',
-      '.wel-input:focus{box-shadow:0 8px 24px rgba(0,0,0,0.22),0 0 0 3px rgba(255,255,255,0.35);}',
+      '.wel-input{width:100%;border:1.5px solid rgba(234,88,12,0.18);border-radius:14px;padding:14px 18px;font-size:16px;font-family:inherit;background:rgba(255,255,255,0.9);color:#1a1a2e;outline:none;box-shadow:0 8px 24px rgba(0,0,0,0.06);backdrop-filter:blur(8px);}',
+      '.wel-input:focus{border-color:#fb923c;box-shadow:0 8px 24px rgba(234,88,12,0.18),0 0 0 3px rgba(251,146,60,0.18);background:#fff;}',
       '.wel-input::placeholder{color:#9ca3af;}',
       '.wel-points{display:flex;flex-direction:column;gap:10px;width:100%;max-width:440px;margin-bottom:24px;text-align:left;}',
-      '.wel-point{display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:12px;padding:12px 14px;backdrop-filter:blur(8px);}',
+      '.wel-point{display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.7);border:1px solid rgba(234,88,12,0.15);border-radius:12px;padding:12px 14px;backdrop-filter:blur(8px);box-shadow:0 4px 12px rgba(234,88,12,0.06);}',
       '.wel-point .ic{font-size:22px;line-height:1;flex-shrink:0;}',
-      '.wel-point .t{font-size:14.5px;font-weight:600;}',
-      '.wel-point .d{font-size:12.5px;opacity:0.85;margin-top:2px;}',
-      '.wel-cta{background:#fff;color:#1e2130;border:none;padding:14px 36px;border-radius:99px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 10px 28px rgba(0,0,0,0.22);transition:transform 150ms,box-shadow 150ms;}',
-      '.wel-cta:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,0.28);}',
+      '.wel-point .t{font-size:14.5px;font-weight:600;color:#1a1a2e;}',
+      '.wel-point .d{font-size:12.5px;color:#6b7280;margin-top:2px;}',
+      '.wel-cta{background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff;border:none;padding:14px 36px;border-radius:99px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 10px 28px rgba(234,88,12,0.35);transition:transform 150ms,box-shadow 150ms;}',
+      '.wel-cta:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(234,88,12,0.45);}',
       '.wel-cta:active{transform:translateY(0);}',
       '.wel-cta:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}',
       '.wel-dots{display:flex;gap:8px;margin-top:24px;}',
-      '.wel-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.35);transition:all 200ms;}',
-      '.wel-dot.on{background:#fff;width:24px;border-radius:99px;}',
+      '.wel-dot{width:8px;height:8px;border-radius:50%;background:rgba(234,88,12,0.25);transition:all 200ms;}',
+      '.wel-dot.on{background:#ea580c;width:24px;border-radius:99px;}',
       // Tour spotlight
       '.shelly-tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;pointer-events:auto;transition:opacity 220ms;}',
-      '.shelly-tour-spot{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.55),0 0 0 4px #c4b5fd,0 0 30px rgba(124,58,237,0.6);z-index:10001;pointer-events:none;transition:all 300ms cubic-bezier(0.4,0,0.2,1);}',
+      '.shelly-tour-spot{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.55),0 0 0 4px #fed7aa,0 0 30px rgba(234,88,12,0.6);z-index:10001;pointer-events:none;transition:all 300ms cubic-bezier(0.4,0,0.2,1);}',
       '.shelly-tour-tt{position:fixed;background:#fff;border-radius:14px;padding:18px;width:300px;max-width:calc(100vw - 32px);box-shadow:0 20px 60px rgba(0,0,0,0.3);z-index:10002;font-family:Inter,sans-serif;animation:shelly-pop 220ms ease;}',
       '.shelly-tour-tt .head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}',
       '.shelly-tour-tt .head .av{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fce7f3,#e9d5ff);overflow:hidden;flex-shrink:0;}',
@@ -319,7 +379,7 @@
       '.shelly-tour-tt button{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit;}',
       '.shelly-tour-tt .skip{background:none;color:#6b7280;}',
       '.shelly-tour-tt .skip:hover{background:#f3f4f6;}',
-      '.shelly-tour-tt .next{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;}',
+      '.shelly-tour-tt .next{background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff;}',
       '.shelly-tour-tt .next:hover{filter:brightness(1.08);}',
     ].join('\n');
     document.head.appendChild(style);
@@ -1714,7 +1774,7 @@
         stage.innerHTML =
           '<div class="wel-avatar">' + shellyHeroSvg(140) + '</div>' +
           '<h1 class="wel-title">Here\'s what I do for you</h1>' +
-          '<p class="wel-sub">I\'m always one tap away (or <code style="background:rgba(0,0,0,0.18);padding:2px 8px;border-radius:6px;">Cmd+K</code>). Try <em>"who\'s at risk?"</em>, <em>"top up credits"</em>, or <em>"/help"</em>.</p>' +
+          '<p class="wel-sub">I\'m always one tap away (or <code style="background:rgba(234,88,12,0.12);color:#c2410c;padding:2px 8px;border-radius:6px;font-weight:600;">Cmd+K</code>). Try <em>"who\'s at risk?"</em>, <em>"top up credits"</em>, or <em>"/help"</em>.</p>' +
           '<div class="wel-points">' +
             '<div class="wel-point"><div class="ic">⚡</div><div><div class="t">Real actions, with Undo</div><div class="d">Top up credits, schedule sessions, draft parent replies — every action is reversible.</div></div></div>' +
             '<div class="wel-point"><div class="ic">🧩</div><div><div class="t">Playbooks &amp; bulk ops</div><div class="d">"Onboard a new student", "weekly wrap", or "/bulk recap" — one command, dozens of clicks saved.</div></div></div>' +
@@ -2003,7 +2063,7 @@
     const range = (max - min) || 1;
     const step = width / (data.length - 1 || 1);
     const points = data.map(function (v, i) { return (i * step).toFixed(1) + ',' + (height - ((v - min) / range) * (height - 2) - 1).toFixed(1); }).join(' ');
-    return '<svg class="ss-spark" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '"><polyline fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="' + points + '"/></svg>';
+    return '<svg class="ss-spark" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '"><polyline fill="none" stroke="#ea580c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="' + points + '"/></svg>';
   }
 
   // ============================================================
