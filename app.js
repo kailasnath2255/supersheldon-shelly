@@ -123,22 +123,30 @@
     t._h = setTimeout(() => { t.style.opacity = '0'; }, 1800);
   };
 
-  // Wire up an Account/Logout button if the page has one (.sidebar-account).
-  // Clicking shows a tiny menu with "Log out".
+  // Wire up an Account/Logout button via EVENT DELEGATION so it survives
+  // sidebar re-renders (which were dropping the old click handler). The
+  // listener lives on document.body and matches any current/future
+  // .sidebar-account element.
   function wireAccount() {
-    const acct = document.querySelector('.sidebar-account');
-    if (!acct) return;
-    acct.addEventListener('click', function (e) {
+    document.body.addEventListener('click', function (e) {
+      const acct = e.target.closest('.sidebar-account');
+      if (!acct) return;
       e.preventDefault();
       let menu = document.querySelector('.account-menu');
       if (menu) { menu.remove(); return; }
       menu = document.createElement('div');
       menu.className = 'account-menu';
-      menu.style.cssText = 'position:fixed;left:16px;bottom:60px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:6px;z-index:1000;min-width:160px;font-family:Inter,sans-serif;font-size:13px;';
+      menu.style.cssText = 'position:fixed;left:16px;bottom:60px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:6px;z-index:1000;min-width:180px;font-family:Inter,sans-serif;font-size:13px;';
       menu.innerHTML =
+        '<button type="button" id="ss-tour" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;background:none;border-radius:6px;cursor:pointer;font:inherit;color:#1a1a2e;text-align:left;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Replay onboarding tour</button>' +
         '<button type="button" id="ss-reset" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;background:none;border-radius:6px;cursor:pointer;font:inherit;color:#1a1a2e;text-align:left;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/></svg>Reset demo data</button>' +
+        '<div style="height:1px;background:#f3f4f6;margin:4px 0;"></div>' +
         '<button type="button" id="ss-logout" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;background:none;border-radius:6px;cursor:pointer;font:inherit;color:#dc2626;text-align:left;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out</button>';
       document.body.appendChild(menu);
+      menu.querySelector('#ss-tour').addEventListener('click', function () {
+        menu.remove();
+        if (window.shelly && window.shelly.tour) window.shelly.tour();
+      });
       menu.querySelector('#ss-logout').addEventListener('click', function () { app.logout(); });
       menu.querySelector('#ss-reset').addEventListener('click', function () {
         if (confirm('Reset all demo data to the seed?\n\nAny edits will be wiped (added students, top-ups, sent messages).')) {
