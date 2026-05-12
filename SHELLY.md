@@ -15,15 +15,25 @@ A complete reference of everything Shelly the Super can do, see, remember, and a
 6. [Natural-Language Understanding](#natural-language-understanding)
 7. [Multi-Turn Conversations](#multi-turn-conversations)
 8. [Action System](#action-system)
-9. [Memory Features](#memory-features)
-10. [Reminders & Snooze](#reminders--snooze)
-11. [Streak & Daily Briefing](#streak--daily-briefing)
-12. [Proactive Nudges](#proactive-nudges)
-13. [Gemini Fallback](#gemini-fallback)
-14. [Keyboard Shortcuts](#keyboard-shortcuts)
-15. [Personality Details](#personality-details)
-16. [Architecture](#architecture)
-17. [Extending Shelly](#extending-shelly)
+9. [**Rich Inline Cards** ⭐ v3](#rich-inline-cards)
+10. [**Undo Toasts** ⭐ v3](#undo-toasts)
+11. [**Compact / Expanded Modes** ⭐ v3](#compact--expanded-modes)
+12. [**Smart Context-Aware Chips** ⭐ v3](#smart-context-aware-chips)
+13. [**Bulk Actions** ⭐ v3](#bulk-actions)
+14. [**Multi-Step Playbooks** ⭐ v3](#multi-step-playbooks)
+15. [**Pinned Insights** ⭐ v3](#pinned-insights)
+16. [**Universal Search** ⭐ v3](#universal-search)
+17. [**Pattern Learning** ⭐ v3](#pattern-learning)
+18. [**Inline Sparklines** ⭐ v3](#inline-sparklines)
+19. [Memory Features](#memory-features)
+20. [Reminders & Snooze](#reminders--snooze)
+21. [Streak & Daily Briefing](#streak--daily-briefing)
+22. [Proactive Nudges](#proactive-nudges)
+23. [Gemini Fallback](#gemini-fallback)
+24. [Keyboard Shortcuts](#keyboard-shortcuts)
+25. [Personality Details](#personality-details)
+26. [Architecture](#architecture)
+27. [Extending Shelly](#extending-shelly)
 
 ---
 
@@ -129,15 +139,21 @@ Type any of these into Shelly's input. They take precedence over natural-languag
 | --- | --- |
 | `/help` | Lists all commands + keyboard shortcuts |
 | `/summary` · `/briefing` | Today's snapshot card (sessions, chats, at-risk, credits) |
-| `/today` | Sessions scheduled for today |
-| `/risk` | All at-risk learners with completion % |
+| `/today` | Sessions today — rendered as **clickable cards** ⭐ |
+| `/risk` | At-risk learners — rendered as **clickable cards with progress bars** ⭐ |
 | `/streak` | Your consecutive-day streak 🔥 |
-| `/credits` | Current credit balance + plan |
-| `/topup [starter\|plus\|pro]` | Buy credits — actually mutates `db` |
-| `/find <name>` | Searches users (students/parents/instructors) |
+| `/credits` | Current balance + plan + **inline weekly sparkline** ⭐ |
+| `/topup [starter\|plus\|pro]` | Buy credits — mutates `db` with **5-second Undo** ⭐ |
+| `/find <name>` | Searches users — rendered as **cards** ⭐ |
 | `/schedule [name]` | Starts multi-turn scheduling flow |
 | `/draft [name]` | Starts multi-turn message-drafting flow |
 | `/template <type>` | `welcome` · `recap` · `missed` · `topup` · `feedback` · `welcome_student` |
+| `/playbook` ⭐ | Lists guided routines (onboard student, weekly wrap, friday cleanup) |
+| `/bulk mark-read` ⭐ | Marks every chat as read (Undo-able) |
+| `/bulk recap` ⭐ | Drafts a recap message to every parent of today's attendees |
+| `/bulk cancel <name>` ⭐ | Cancels every upcoming session for that learner this week |
+| `/pinned` · `/unpin all` ⭐ | Manage pinned insights |
+| `/compact` · `/expand` ⭐ | Toggle Shelly's panel mode |
 | `/remember <text>` | Saves a note Shelly will recall later |
 | `/notes` | Lists everything Shelly remembers |
 | `/forget <n>` · `/forget all` | Removes a note (by index) or all |
@@ -145,12 +161,14 @@ Type any of these into Shelly's input. They take precedence over natural-languag
 | `/reminders` | Lists active reminders |
 | `/snooze 30m` · `/snooze 2h` | Pauses proactive nudges |
 | `/unsnooze` | Wakes her back up |
-| `/search <text>` | Fuzz-finds past messages in chat history |
+| `/search <text>` | Fuzz-finds past Shelly messages |
 | `/calc <expr>` | Quick math (e.g. `/calc 100*4`) |
 | `/go <page>` | Quick nav: `chats`, `store`, `progress`, `analytics`, `users`, `notifications`, `home` |
 | `/tour` | Replays the onboarding spotlight tour |
 | `/clear` | Clears the conversation |
 | `/reset` | Wipes all demo data (confirmation prompt) |
+
+⭐ = new in v3
 
 ---
 
@@ -302,6 +320,173 @@ shelly.do.tour()
 
 ---
 
+## Rich Inline Cards
+
+When Shelly mentions a student, session, course, or chat — she renders it as a **clickable mini-card** right inside her bubble instead of plain text.
+
+Each card shows:
+- **Student card**: avatar, name, progress bar, status pill (On track / Falling behind / At risk), last active
+- **Session card**: 📅 icon, learner name, when, status pill (upcoming / cancelled / completed)
+- **Course card**: course icon + colour, name, type, learner count, credits remaining
+- **Chat card**: parent/student avatar, name, unread badge, last-message preview
+
+Click any card → navigates straight to the relevant page.
+
+```
+You:    /risk
+Shelly: 3 learners need attention — tap any to drill in:
+        ┌────────────────────────────────────┐
+        │ Y  Yash Sandhu                     │
+        │    [████░░░░░░] 38% [At Risk]      │
+        └────────────────────────────────────┘
+        ┌────────────────────────────────────┐
+        │ J  Janishaa                        │
+        │    [████░░░░░] 44% [Falling]       │
+        └────────────────────────────────────┘
+```
+
+Powered by `say(text, { cards: [{type, data}, …] })`.
+
+---
+
+## Undo Toasts
+
+Every Shelly action (top-up, bulk cancel, mark-all-read, onboard student) shows a 5-second toast with an **Undo** button. Tap it → the mutation reverses cleanly:
+
+- Top-up → balance reverts, purchase row removed, notification withdrawn
+- Bulk cancel → sessions return to upcoming
+- Bulk mark-read → unread counts restored
+
+Builds total trust to let Shelly act on real data. Powered by `withUndo(label, doFn, undoFn)`.
+
+---
+
+## Compact / Expanded Modes
+
+Two layouts via the **⊟ / ⊞** button in Shelly's header:
+
+| Mode | Size | What's shown |
+|---|---|---|
+| **Full** | 380×540px | Pinned strip · search · message list · chips · input |
+| **Compact** | 280px wide, auto height | Just chips + input — keep Shelly visible without taking half the screen |
+
+Mode persists across pages via `db.shellyPanelMode`. Slash commands: `/compact` · `/expand`.
+
+---
+
+## Smart Context-Aware Chips
+
+The suggestion chips below the message list are dynamically rebuilt based on **four signals**:
+
+1. **Urgency** — what data says needs attention (low credits → "Top up credits"; unreads → "Summarise unread chats")
+2. **Page context** — what page you're on (Store → "Top up Plus"; Chats → "Draft a reply"; Analytics → "Forecast next month")
+3. **Habits** — your top 2 most-used slash commands (pattern learning)
+4. **Staples** — always-useful fallbacks ("What's on today?", `/summary`)
+
+Chips refresh on every `db` change, so they always reflect *right now*.
+
+---
+
+## Bulk Actions
+
+One command does the job of 10 clicks. All wrapped in **Undo**.
+
+| Command | What happens |
+|---|---|
+| `/bulk mark-read` | Every unread chat → marked read; sidebar badge clears across pages |
+| `/bulk recap` | For each student with a session today, drafts a recap (using the `recap` template, name-filled) and sends it to their parent |
+| `/bulk cancel <name>` | Every upcoming session for that learner this week → marked cancelled |
+
+Shelly tells you exactly how many items were affected, so the Undo is always informed.
+
+---
+
+## Multi-Step Playbooks
+
+Guided routines that chain multiple actions through interactive multi-turn flows.
+
+### Built-in playbooks
+
+**`onboard-student`** — *Onboard a new student 🎓*
+1. Asks for name
+2. Asks for email/phone
+3. Adds the user to `db.users` (Undo-able)
+4. Offers to schedule their first session
+5. Offers to draft a welcome message
+
+**`weekly-wrap`** — *End-of-week wrap 📊*
+1. Shows daily summary
+2. Drafts recap messages to today's parents (`/bulk recap`)
+3. Offers to mark all notifications + chats read
+
+**`friday-cleanup`** — *Friday cleanup 🧹*
+1. Surfaces all cancelled sessions
+2. Walks you through rescheduling each
+3. Prompts a top-up if credits are running low
+
+### Use it
+
+```
+/playbook                  → picker with all 3
+/playbook onboard          → starts onboarding directly
+/playbook weekly           → starts the wrap routine
+```
+
+Cancel any playbook mid-flow with `cancel`, `stop`, or `nevermind`.
+
+---
+
+## Pinned Insights
+
+Pin any of Shelly's messages to keep them visible at the top of the panel.
+
+- **Hover** any Shelly message → 📌 button appears top-right
+- Click → message text saved to a yellow strip at the top of the panel (max 5 pins)
+- Click ✕ on a pin to remove it
+- Pins persist across pages and sessions in `db.shellyPinned`
+
+Useful for keeping a parent draft, a student's stats, or an important reminder visible while you work elsewhere in the app.
+
+Slash commands: `/pinned` · `/unpin all`.
+
+---
+
+## Universal Search
+
+Click the **🔍** button in Shelly's header — a search bar opens above the message list. Searches across:
+
+- **Students/parents/instructors** — by name or email
+- **Courses** — 1:1, group, recorded
+- **Chats** — by participant name
+- **Past Shelly messages** — full-text fuzzy search of conversation history
+
+Results are categorised with a tiny badge (`STUDENT`, `COURSE`, `CHAT`, `HISTORY`). Click any → navigates to the relevant page (or scrolls back to the past message).
+
+Press `Esc` inside the search bar to close it.
+
+---
+
+## Pattern Learning
+
+Every slash command you use bumps a counter in `db.shellyCommandUsage`. Shelly's smart-chip system uses your **top 2 most-used commands** as default suggestions — so the more you use her, the more her suggestions match your actual workflow.
+
+Future hooks (planned):
+- *"You always schedule Aadya at 6:30 PM — make that the default?"*
+- *"You've used `/template recap` 12 times — want a one-click button on the Course Home page?"*
+
+---
+
+## Inline Sparklines
+
+Tiny SVG charts embedded directly in Shelly's bubbles for at-a-glance trend data.
+
+Currently used in:
+- `/credits` — shows weekly session-volume trend next to your balance
+
+The renderer (`sparklineSvg(data, w, h)`) takes any number array and produces a 60×18 purple polyline. Plug it into any reply with `text + sparklineSvg([…])`.
+
+---
+
 ## Memory Features
 
 ### Personal notes
@@ -415,7 +600,11 @@ The API key **never reaches the browser**. If Gemini fails (no key, rate limit, 
 |---|---|
 | `Cmd+K` (Mac) · `Ctrl+K` (Win/Linux) | Opens Shelly + focuses her input from anywhere |
 | `/` (alone, when not typing in a field) | Opens Shelly with `/` pre-filled, ready for a command |
-| `Esc` | Closes Shelly's panel (or topmost modal) |
+| `Esc` | Closes Shelly's panel · or the search bar · or the topmost modal |
+| **🔍** (header button) | Opens universal search |
+| **⊟ / ⊞** (header button) | Toggles compact / expanded panel |
+| **⋮** (header button) | Menu: Clear conversation · Reset demo data |
+| **📌** (hover any reply) | Pin it to the top of the panel |
 
 ---
 
@@ -447,7 +636,7 @@ The API key **never reaches the browser**. If Gemini fails (no key, rate limit, 
 | `shelly.js` | The brain. UI, router, multi-turn flows, tour engine, action system, proactive nudges, hotkeys, streak, briefing, search. Auto-loads `gemini.js`. |
 | `gemini.js` | Browser-side Gemini adapter. Builds context, posts to `/api/shelly`. |
 | `api/shelly.js` | Vercel serverless function. Holds the API key. Strict system prompt + safety filters. |
-| `data.js` | The `db` she reads from + writes to. Includes `shellyChat`, `shellyNotes`, `shellyReminders`, `shellyMutedUntil`, `shellyPrefs`. |
+| `data.js` | The `db` she reads from + writes to. Includes `shellyChat`, `shellyNotes`, `shellyReminders`, `shellyMutedUntil`, `shellyPrefs`, `shellyPinned`, `shellyCommandUsage`, `shellyPanelMode`. |
 | `app.js` | Provides `app.modal()`, `app.toast()`, `app.field()` helpers Shelly uses. |
 
 ### Public API
@@ -468,6 +657,14 @@ window.shelly.remember(text)        // save a note
 window.shelly.remind(text, dueAt)   // set a reminder
 window.shelly.snooze(minutes)       // mute her
 window.shelly.do.* (see Action System)
+
+// v3 helpers also accessible from any page
+withUndo(label, doFn, undoFn)       // wrap any mutation with Undo
+sparklineSvg(data, w, h)            // tiny inline chart
+runPlaybook('onboard-student' | 'weekly-wrap' | 'friday-cleanup')
+bulkMarkAllChatsRead()
+bulkCancelStudentSessionsThisWeek(studentId)
+bulkSendRecapToToday()
 ```
 
 ---
@@ -501,6 +698,29 @@ if (action === 'my-action') {
 }
 ```
 
+### Add a new playbook
+Drop a new entry into the `PLAYBOOKS` constant in `shelly.js`:
+```js
+PLAYBOOKS['my-routine'] = {
+  name: 'My morning ritual ☕',
+  run: function () {
+    open();
+    say('Step 1…', { instant: true });
+    setTimeout(function () { /* step 2 */ }, 800);
+  },
+};
+```
+It auto-appears in the `/playbook` picker.
+
+### Add cards to a reply
+Any reply can include rich cards:
+```js
+say('Here are at-risk learners:', {
+  cards: db.atRisk().map(s => ({ type: 'student', data: s }))
+});
+```
+Supported types: `student`, `session`, `course`, `chat`.
+
 ### Teach her about new data
 Add fields to `SEED` in `data.js`. They'll automatically be available in Gemini context (Shelly's system prompt includes a live snapshot).
 
@@ -510,12 +730,18 @@ Add fields to `SEED` in `data.js`. They'll automatically be available in Gemini 
 
 Shelly is:
 - A **floating animated superhero girl** (custom SVG, edge-traced shadow, idle bobbing)
-- Who **reads your real data** and **performs real actions**
+- Who **reads your real data** and **performs real actions** — every action wrapped in **5-second Undo**
+- Renders **rich inline cards** (students, sessions, courses, chats) in chat — clickable, navigable
 - Walks you through **multi-turn flows** for complex tasks
+- Runs **multi-step playbooks** (onboard a new student, weekly wrap, friday cleanup)
+- Has **bulk actions** (`/bulk mark-read`, `/bulk recap`, `/bulk cancel <name>`) — one command does the job of 10 clicks
 - **Remembers** notes, reminders, conversations across pages
-- Tracks your **streak**, runs a **morning briefing**
-- Has **50+ natural-language intents** + 25 slash commands
-- Opens with **Cmd+K** from anywhere
+- Lets you **pin** important insights to the top of the panel
+- Has a **universal search** — students, courses, chats, past Shelly messages
+- **Smart context-aware chips** that change per-page + adapt to your habits
+- Tracks your **streak**, runs a **morning briefing**, embeds **inline sparklines**
+- Has **50+ natural-language intents** + **30 slash commands**
+- Opens with **Cmd+K** from anywhere · **⊟** for compact mode
 - Silently falls back to **Gemini** for off-script questions, with the API key safely server-side
 - Refuses off-topic queries with one consistent line
-- And she's **never been more powerful**. 🦸‍♀️
+- **v3 — never been more powerful.** 🦸‍♀️
