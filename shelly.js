@@ -229,6 +229,51 @@
       '.shelly-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border:none;background:none;border-radius:6px;cursor:pointer;font:inherit;color:#1a1a2e;text-align:left;}',
       '.shelly-menu button:hover{background:#f3f4f6;}',
       '.shelly-menu button.danger{color:#dc2626;}',
+      // ===== Rich inline cards =====
+      '.ss-cards{margin-top:8px;display:flex;flex-direction:column;gap:6px;}',
+      '.ss-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 150ms;font-size:12.5px;}',
+      '.ss-card:hover{border-color:#7c3aed;background:#faf5ff;transform:translateX(2px);}',
+      '.ss-card .av{width:32px;height:32px;border-radius:50%;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}',
+      '.ss-card .info{flex:1;min-width:0;}',
+      '.ss-card .info .nm{font-weight:600;font-size:13px;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+      '.ss-card .info .sub{font-size:11px;color:#6b7280;margin-top:1px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}',
+      '.ss-card .pill{padding:1px 7px;border-radius:99px;font-size:10px;font-weight:600;}',
+      '.ss-card .pill.green{background:#dcfce7;color:#166534;} .ss-card .pill.yellow{background:#fef3c7;color:#92400e;} .ss-card .pill.red{background:#fee2e2;color:#991b1b;} .ss-card .pill.blue{background:#dbeafe;color:#1e40af;} .ss-card .pill.purple{background:#ede9fe;color:#5b21b6;}',
+      '.ss-card .arrow{color:#9ca3af;font-size:14px;flex-shrink:0;}',
+      '.ss-card .bar{flex:1;height:5px;background:#f3f4f6;border-radius:99px;overflow:hidden;min-width:60px;max-width:90px;}',
+      '.ss-card .bar > span{display:block;height:100%;background:linear-gradient(90deg,#7c3aed,#2563eb);border-radius:99px;}',
+      // Sparkline
+      '.ss-spark{display:inline-block;vertical-align:middle;margin-left:6px;}',
+      // Undo toast variant
+      '.app-toast.with-undo{display:flex;align-items:center;gap:14px;padding:10px 14px;}',
+      '.app-toast .undo-btn{background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}',
+      '.app-toast .undo-btn:hover{background:rgba(255,255,255,0.28);}',
+      // Pin
+      '.shelly-msg{position:relative;}',
+      '.shelly-pin-btn{position:absolute;top:0;right:0;background:rgba(255,255,255,0.92);border:1px solid #e5e7eb;border-radius:50%;width:22px;height:22px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#6b7280;transition:all 150ms;padding:0;}',
+      '.shelly-msg:hover .shelly-pin-btn{display:flex;}',
+      '.shelly-pin-btn:hover{background:#fef3c7;color:#92400e;border-color:#fde68a;}',
+      '.shelly-pinned-strip{background:#fef3c7;border-bottom:1px solid #fde68a;padding:8px 12px;display:flex;flex-direction:column;gap:6px;max-height:120px;overflow-y:auto;}',
+      '.shelly-pinned-strip:empty{display:none;}',
+      '.shelly-pinned-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:#92400e;}',
+      '.shelly-pinned-row .text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+      '.shelly-pinned-row .x{cursor:pointer;color:#92400e;opacity:0.6;}',
+      '.shelly-pinned-row .x:hover{opacity:1;}',
+      // Search bar inside panel
+      '.shelly-search{padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb;display:none;}',
+      '.shelly-search.open{display:block;}',
+      '.shelly-search input{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 10px;font-size:12.5px;outline:none;font-family:inherit;}',
+      '.shelly-search input:focus{border-color:#7c3aed;}',
+      '.shelly-search-results{margin-top:6px;max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}',
+      '.shelly-search-row{padding:6px 8px;border-radius:6px;font-size:12px;cursor:pointer;color:#1a1a2e;}',
+      '.shelly-search-row:hover{background:#f3f4f6;}',
+      '.shelly-search-row .kind{display:inline-block;font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.4px;margin-right:6px;}',
+      // Compact mode (small bubble-like view)
+      '.shelly-panel.compact{height:auto;max-height:none;width:280px;}',
+      '.shelly-panel.compact .shelly-list{display:none;}',
+      '.shelly-panel.compact .shelly-suggestions{padding:10px 14px 8px;}',
+      '.shelly-panel.compact .shelly-search{display:none;}',
+      '.shelly-panel.compact .shelly-pinned-strip{display:none;}',
       // Tour spotlight
       '.shelly-tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;pointer-events:auto;transition:opacity 220ms;}',
       '.shelly-tour-spot{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.55),0 0 0 4px #c4b5fd,0 0 30px rgba(124,58,237,0.6);z-index:10001;pointer-events:none;transition:all 300ms cubic-bezier(0.4,0,0.2,1);}',
@@ -268,8 +313,15 @@
       '<div class="shelly-hdr">' +
         '<div class="shelly-hdr-avatar">' + shellyPortraitSvg(42) + '</div>' +
         '<div class="shelly-hdr-info"><h4>Shelly the Super</h4><p><span class="shelly-dot"></span><span id="shelly-status">always on, here to help</span></p></div>' +
+        '<button class="shelly-menu-btn" id="shelly-search-btn" type="button" aria-label="Search" title="Search (Cmd+F)">🔍</button>' +
+        '<button class="shelly-menu-btn" id="shelly-mode-btn" type="button" aria-label="Toggle compact" title="Compact / full">⊟</button>' +
         '<button class="shelly-menu-btn" id="shelly-menu-btn" type="button" aria-label="Menu">⋮</button>' +
         '<button class="shelly-menu-btn" id="shelly-close" type="button" aria-label="Close">×</button>' +
+      '</div>' +
+      '<div class="shelly-pinned-strip" id="shelly-pinned"></div>' +
+      '<div class="shelly-search" id="shelly-search">' +
+        '<input id="shelly-search-input" type="text" placeholder="Search students, sessions, chats, history…" />' +
+        '<div class="shelly-search-results" id="shelly-search-results"></div>' +
       '</div>' +
       '<div class="shelly-list"></div>' +
       '<div class="shelly-suggestions"></div>' +
@@ -288,8 +340,19 @@
     bubble.addEventListener('click', toggle);
     panel.querySelector('#shelly-close').addEventListener('click', toggle);
     panel.querySelector('#shelly-menu-btn').addEventListener('click', toggleMenu);
+    panel.querySelector('#shelly-mode-btn').addEventListener('click', togglePanelMode);
+    panel.querySelector('#shelly-search-btn').addEventListener('click', toggleSearchBar);
     sendEl.addEventListener('click', submitInput);
     inputEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') submitInput(); });
+    panel.querySelector('#shelly-search-input').addEventListener('input', function (e) { runUniversalSearch(e.target.value); });
+    panel.querySelector('#shelly-search-input').addEventListener('keydown', function (e) { if (e.key === 'Escape') toggleSearchBar(); });
+
+    // Restore panel mode + pinned strip
+    if (window.db) {
+      if (db.getPanelMode() === 'compact') panel.classList.add('compact');
+      renderPinned();
+      db.subscribe(renderPinned);
+    }
 
     renderSuggestions([
       'How many credits left?',
@@ -341,8 +404,13 @@
           return '<button class="shelly-action ' + (a.primary ? 'primary' : '') + '" data-i="' + i + '" type="button">' + a.label + '</button>';
         }).join('') + '</div>'
       : '';
+    const cardsHtml = m.cards ? renderCardsHtml(m.cards) : '';
     const text = m.from === 'user' ? escapeHtml(m.text) : m.text;
-    div.innerHTML = avatar + '<div class="shelly-msg-body"><div class="shelly-bubble-text">' + text + '</div>' + actionsHtml + '</div>';
+    div.innerHTML = avatar + '<div class="shelly-msg-body"><div class="shelly-bubble-text">' + text + '</div>' + cardsHtml + actionsHtml + '</div>';
+    // Pin button (only for Shelly's messages)
+    injectPinButton(div, m);
+    // Wire card clicks
+    wireCardClicks(div);
     if (m.actions) {
       m.actions.forEach(function (a, i) {
         const btn = div.querySelector('[data-i="' + i + '"]');
@@ -676,7 +744,7 @@
   function say(text, opts) {
     opts = opts || {};
     const delay = opts.instant ? 0 : (opts.delay != null ? opts.delay : typingDelay(text));
-    const msg = { from: 'shelly', text: text, actions: opts.actions || null };
+    const msg = { from: 'shelly', text: text, actions: opts.actions || null, cards: opts.cards || null };
     if (!opts.instant) {
       const t = showTyping();
       setTimeout(function () { t.remove(); renderMessage(msg, true); if (!opened) { setUnread(unread() + 1); updateBadge(); bubble.classList.remove('pulse'); void bubble.offsetWidth; bubble.classList.add('pulse'); } }, delay);
@@ -760,6 +828,7 @@
     const parts = cmd.trim().split(/\s+/);
     const c = parts[0].toLowerCase();
     const rest = parts.slice(1).join(' ');
+    trackCommand(c); // learn user habits
 
     if (c === '/help') {
       return "<strong>Commands I know:</strong><br>" +
@@ -776,9 +845,14 @@
         "<code>/calc 100*4</code> — quick math<br>" +
         "<code>/search &lt;text&gt;</code> — find past messages<br>" +
         "<code>/streak</code> — your active-day streak 🔥<br>" +
+        "<code>/playbook</code> — guided routines (onboard, weekly wrap, friday cleanup)<br>" +
+        "<code>/bulk mark-read | recap | cancel &lt;name&gt;</code> — bulk ops<br>" +
+        "<code>/pinned</code> · <code>/unpin all</code> — manage pinned insights<br>" +
+        "<code>/compact</code> · <code>/expand</code> — toggle panel size<br>" +
         "<code>/go &lt;page&gt;</code> — jump anywhere<br>" +
         "<code>/tour</code> · <code>/clear</code> · <code>/reset</code><br><br>" +
-        "<strong>Shortcut:</strong> press <code>Cmd</code>+<code>K</code> (Mac) or <code>Ctrl</code>+<code>K</code> to open me from anywhere · <code>/</code> alone jumps right into a command.<br><br>" +
+        "<strong>Shortcuts:</strong> <code>Cmd</code>+<code>K</code> (Mac) or <code>Ctrl</code>+<code>K</code> opens me anywhere · <code>/</code> alone opens command mode · <code>Esc</code> closes me.<br><br>" +
+        "<strong>UI tips:</strong> hover any of my messages to see the 📌 pin button · click the 🔍 in my header for universal search · click ⊟ for compact mode.<br><br>" +
         "Or <em>just ask me</em> in plain English — I'll figure it out.";
     }
     if (c === '/tour') { setTimeout(startOnboardingTour, 200); return 'Starting tour… ✨'; }
@@ -800,6 +874,56 @@
         }).join('<br>');
     }
     if (c === '/briefing' || c === '/morning') { setTimeout(showSummary, 100); return null; }
+
+    if (c === '/playbook' || c === '/play') {
+      const list = Object.keys(PLAYBOOKS);
+      if (!rest) {
+        return { text: '<strong>Pick a playbook:</strong>',
+          actions: list.map(function (k) { return { label: PLAYBOOKS[k].name, onClick: function () { runPlaybook(k); } }; }) };
+      }
+      const k = rest.toLowerCase();
+      const found = list.find(function (key) { return key.indexOf(k) >= 0; });
+      if (!found) return 'No playbook matching <em>"' + escapeHtml(rest) + '"</em>. Try one of: ' + list.join(', ') + '.';
+      setTimeout(function () { runPlaybook(found); }, 100);
+      return null;
+    }
+
+    if (c === '/bulk') {
+      const op = (rest || '').toLowerCase().split(/\s+/)[0];
+      if (op === 'mark-read' || op === 'mark-chats') {
+        bulkMarkAllChatsRead();
+        return null;
+      }
+      if (op === 'recap') {
+        const sent = bulkSendRecapToToday();
+        return sent > 0 ? 'Recap drafts queued for <strong>' + sent + ' parent(s)</strong>. Open <em>Chats</em> to review.' : 'No sessions today to recap.';
+      }
+      if (op === 'cancel') {
+        const name = rest.replace(/^cancel\s+/i, '').trim();
+        if (!name) return 'Usage: <code>/bulk cancel &lt;student name&gt;</code> — cancels all of their upcoming sessions this week.';
+        const u = db.get().users.find(function (x) { return x.role === 'student' && x.name.toLowerCase().indexOf(name.toLowerCase()) >= 0; });
+        if (!u) return 'No student matching "<em>' + escapeHtml(name) + '</em>".';
+        const n = bulkCancelStudentSessionsThisWeek(u.id);
+        return n > 0 ? 'Cancelled <strong>' + n + ' session(s)</strong> for ' + u.name + '. (Undo available for 5s.)' : 'No sessions to cancel for ' + u.name + ' this week.';
+      }
+      return '<strong>Bulk actions:</strong><br>' +
+        '<code>/bulk mark-read</code> — clear all unread chats<br>' +
+        '<code>/bulk recap</code> — send recap drafts to today\'s attendees\' parents<br>' +
+        '<code>/bulk cancel &lt;name&gt;</code> — cancel all of a learner\'s sessions this week';
+    }
+
+    if (c === '/pinned' || c === '/pins') {
+      const pins = db.listPinned();
+      if (!pins.length) return 'No pinned insights yet. Hover any of my messages and tap 📌 to pin it.';
+      return '<strong>Pinned (' + pins.length + '):</strong><br>' + pins.map(function (p) { return '📌 ' + escapeHtml(String(p.text).replace(/<[^>]+>/g, '')).slice(0, 100); }).join('<br>');
+    }
+    if (c === '/unpin') {
+      if (rest === 'all') { db.clearPinned(); return 'All pins cleared. ✓'; }
+      return 'Use <code>/unpin all</code>, or click × on a pin in the strip above.';
+    }
+
+    if (c === '/compact') { panel.classList.add('compact'); db.setPanelMode('compact'); panel.querySelector('#shelly-mode-btn').textContent = '⊞'; return null; }
+    if (c === '/expand') { panel.classList.remove('compact'); db.setPanelMode('full'); panel.querySelector('#shelly-mode-btn').textContent = '⊟'; return null; }
     if (c === '/remember') {
       const text = rest.trim();
       if (!text) return 'Tell me what to remember. Try <code>/remember Aadya prefers morning sessions</code>.';
@@ -862,35 +986,42 @@
       const today = new Date().toISOString().split('T')[0];
       const sessions = db.upcoming().filter(function (s) { return s.startsAt.startsWith(today.slice(0, 7)); }).slice(0, 5);
       if (!sessions.length) return "You're clear today — no upcoming sessions on the books! 🌴";
-      const lines = sessions.map(function (s) {
-        const t = new Date(s.startsAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-        const stu = (s.studentIds || []).map(nameOf).join(', ');
-        return '• ' + t + ' — ' + stu + ' (' + s.status + ')';
-      });
-      return "Here's what's coming up:<br>" + lines.join('<br>');
+      return { text: "Here's what's coming up:", cards: sessions.map(function (s) { return { type: 'session', data: s }; }) };
     }
     if (c === '/risk') {
       const at = db.atRisk();
       if (!at.length) return 'Everyone\'s on track today. 🌟 Want to celebrate the top performers instead?';
-      const lines = at.map(function (s) { return '• <strong>' + s.name + '</strong> — ' + s.progress + '% (active ' + s.active + ')'; });
-      return "<strong>" + at.length + " learner(s) need attention:</strong><br>" + lines.join('<br>');
+      return { text: "<strong>" + at.length + " learner(s) need attention</strong> — tap any to drill in:", cards: at.map(function (s) { return { type: 'student', data: s }; }) };
     }
-    if (c === '/credits') { return statsLine() + '. Need a top-up? Just say <code>/topup plus</code>.'; }
+    if (c === '/credits') {
+      const d = db.get();
+      const trend = (d.analytics && d.analytics.weekly) || [];
+      const spark = trend.length ? sparklineSvg(trend, 70, 18) : '';
+      return statsLine() + spark + '. Need a top-up? Just say <code>/topup plus</code>.';
+    }
     if (c === '/topup') {
       const pack = (rest || 'plus').toLowerCase();
       const valid = ['starter', 'plus', 'pro'].includes(pack);
       if (!valid) return 'Pack must be one of: starter, plus, pro. Try <code>/topup plus</code>.';
       const before = db.get().credits.balance;
-      const p = db.topUp(pack);
-      return 'Done! ✅ +' + p.credits + ' credits added. <strong>' + before + ' → ' + db.get().credits.balance + '</strong>.';
+      withUndo('Top-up: +' + ({starter:20, plus:100, pro:300}[pack] || 100) + ' credits',
+        function () { db.topUp(pack); },
+        function () {
+          db.update(function (d) {
+            d.credits.balance -= ({starter:20, plus:100, pro:300}[pack] || 100);
+            d.purchases.shift();
+            d.notifications.shift();
+          });
+        }
+      );
+      return 'Done! ✅ <strong>' + before + ' → ' + db.get().credits.balance + '</strong> credits.';
     }
     if (c === '/find') {
       if (!rest) return 'Tell me who. Try <code>/find aadya</code>.';
       const q = rest.toLowerCase();
       const matches = db.get().users.filter(function (u) { return u.name.toLowerCase().includes(q); });
       if (!matches.length) return 'No one matching "<em>' + escapeHtml(rest) + '</em>". 🤔';
-      const lines = matches.slice(0, 5).map(function (u) { return '• <strong>' + u.name + '</strong> — ' + u.role + (u.progress != null ? ' · ' + u.progress + '% complete' : ''); });
-      return matches.length + ' match(es):<br>' + lines.join('<br>');
+      return { text: matches.length + ' match(es):', cards: matches.slice(0, 6).map(function (u) { return u.role === 'student' ? { type: 'student', data: u } : { type: 'student', data: u }; }) };
     }
     if (c === '/schedule') {
       // If a learner name is provided, jump straight into the time-picker.
@@ -1484,18 +1615,51 @@
   function setContext(ctx) { pageContext = ctx || {}; }
   function suggest(arr) { renderSuggestions(arr); }
 
-  // Refresh the suggestion chips based on the user's current state.
+  // Refresh the suggestion chips based on:
+  //   1. URGENCY    — what the data says needs attention (low credits, unreads)
+  //   2. PAGE CONTEXT — what page the user is on
+  //   3. HABITS     — top commands the user has used before (pattern learning)
+  //   4. STAPLES    — fallback always-useful chips
   function smartSuggestions() {
     if (!dbReady()) return;
     const items = [];
+    const seen = {};
+    const add = function (s) { if (s && !seen[s]) { seen[s] = 1; items.push(s); } };
+
+    // 1. Urgency
     const credits = db.get().credits.balance;
-    if (credits < 15) items.push('Top up credits');
-    if (db.unreadChatCount() > 0) items.push('Summarise unread chats');
-    if (db.atRisk().length > 0) items.push("Who's at risk?");
-    items.push('What\'s on today?');
-    items.push('/summary');
-    if (db.listNotes().length === 0) items.push('Remember something');
-    renderSuggestions(items.slice(0, 4));
+    if (credits < 15) add('Top up credits');
+    if (db.unreadChatCount() > 0) add('Summarise unread chats');
+    if (db.atRisk().length > 0) add("Who's at risk?");
+
+    // 2. Page context — what makes sense where the user is
+    const page = (pageContext && pageContext.page) || (document.body && document.body.dataset && document.body.dataset.page);
+    const PAGE_HINTS = {
+      classes: ['What\'s on today?', '/playbook'],
+      'course-home': ['Schedule a session', 'Add a note for this session'],
+      'course-content': ['Suggest a quiz topic', '/template recap'],
+      users: ['Invite a new student', 'Who hasn\'t been active?'],
+      progress: ['Who\'s at risk?', 'Draft a check-in'],
+      chats: ['Draft a reply', 'Mark all read'],
+      store: ['Top up Plus', '/credits'],
+      analytics: ['Forecast next month', 'Top performing course'],
+      notifications: ['Mark all read', 'What\'s most urgent?'],
+    };
+    (PAGE_HINTS[page] || []).forEach(add);
+
+    // 3. Habit-based (top 2 commands the user actually uses)
+    if (db.topCommands) {
+      db.topCommands(2).forEach(function (cmd) {
+        if (cmd && cmd !== '/help' && cmd !== '/clear') add(cmd);
+      });
+    }
+
+    // 4. Staples (always-useful)
+    add('What\'s on today?');
+    add('/summary');
+    if (db.listNotes().length === 0) add('Remember something');
+
+    renderSuggestions(items.slice(0, 5));
   }
   // Refresh suggestions on db changes
   if (window.db) db.subscribe(smartSuggestions);
@@ -1526,6 +1690,347 @@
   // Silently load the Gemini adapter so the fallback is available without
   // editing every HTML page. If gemini.js is missing or fails to load, Shelly
   // simply uses her rule-based responses — no user-visible difference.
+  // ============================================================
+  // FEATURE: Compact ↔ Expanded panel modes
+  // ============================================================
+  function togglePanelMode() {
+    panel.classList.toggle('compact');
+    const mode = panel.classList.contains('compact') ? 'compact' : 'full';
+    if (window.db) db.setPanelMode(mode);
+    const btn = panel.querySelector('#shelly-mode-btn');
+    if (btn) btn.textContent = mode === 'compact' ? '⊞' : '⊟';
+  }
+
+  // ============================================================
+  // FEATURE: Pinned insights
+  // ============================================================
+  function renderPinned() {
+    if (!window.db) return;
+    const strip = panel.querySelector('#shelly-pinned');
+    if (!strip) return;
+    const pinned = db.listPinned();
+    if (!pinned.length) { strip.innerHTML = ''; return; }
+    strip.innerHTML = pinned.map(function (p) {
+      const text = String(p.text || '').replace(/<[^>]+>/g, '').slice(0, 80);
+      return '<div class="shelly-pinned-row" data-id="' + p.id + '"><span>📌</span><span class="text">' + escapeHtml(text) + '</span><span class="x" data-unpin="' + p.id + '">×</span></div>';
+    }).join('');
+    strip.querySelectorAll('[data-unpin]').forEach(function (el) {
+      el.addEventListener('click', function (e) { e.stopPropagation(); db.unpinMessage(el.dataset.unpin); });
+    });
+  }
+
+  // Add a pin button to every Shelly message after it renders. Hooked from
+  // the existing renderMessage flow via injectPinButton.
+  function injectPinButton(div, msg) {
+    if (!msg || msg.from === 'user') return;
+    const btn = document.createElement('button');
+    btn.className = 'shelly-pin-btn';
+    btn.title = 'Pin this insight';
+    btn.type = 'button';
+    btn.textContent = '📌';
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (window.db) {
+        db.pinMessage({ text: msg.text, from: msg.from });
+        app.toast('Pinned ✓');
+      }
+    });
+    div.appendChild(btn);
+  }
+
+  // ============================================================
+  // FEATURE: Universal search (across users / courses / sessions / chats / past Shelly messages)
+  // ============================================================
+  function toggleSearchBar() {
+    const bar = panel.querySelector('#shelly-search');
+    bar.classList.toggle('open');
+    if (bar.classList.contains('open')) {
+      const inp = bar.querySelector('#shelly-search-input');
+      inp.value = ''; inp.focus();
+      bar.querySelector('#shelly-search-results').innerHTML = '';
+    }
+  }
+  function runUniversalSearch(q) {
+    if (!window.db) return;
+    const out = panel.querySelector('#shelly-search-results');
+    const query = String(q || '').toLowerCase().trim();
+    if (!query) { out.innerHTML = ''; return; }
+    const d = db.get();
+    const results = [];
+    // Users
+    (d.users || []).forEach(function (u) {
+      if (u.name.toLowerCase().indexOf(query) >= 0 || (u.email || '').toLowerCase().indexOf(query) >= 0) {
+        results.push({ kind: u.role, label: u.name, sub: u.email || '', go: function () { window.location.href = u.role === 'student' ? '13-progress-reports.html' : '12-users.html'; } });
+      }
+    });
+    // Courses
+    (d.courses || []).forEach(function (c) {
+      if (c.name.toLowerCase().indexOf(query) >= 0) {
+        results.push({ kind: 'course', label: c.name, sub: c.type + (c.code ? ' · ' + c.code : ''), go: function () { window.location.href = c.type === 'group' ? '10-group-courses.html' : c.type === 'recorded' ? '11-recorded-courses.html' : '6-course-home.html'; } });
+      }
+    });
+    // Chats
+    (d.chats || []).forEach(function (ch) {
+      const u = db.findUser(ch.userId);
+      if (u && u.name.toLowerCase().indexOf(query) >= 0) {
+        results.push({ kind: 'chat', label: 'Chat with ' + u.name, sub: (ch.unread ? ch.unread + ' unread' : 'no unread'), go: function () { window.location.href = '14-chats.html'; } });
+      }
+    });
+    // Past Shelly messages
+    (d.shellyChat || []).forEach(function (m) {
+      const text = String(m.text || '').replace(/<[^>]+>/g, '');
+      if (text.toLowerCase().indexOf(query) >= 0) {
+        results.push({ kind: 'history', label: text.slice(0, 70) + (text.length > 70 ? '…' : ''), sub: m.from === 'user' ? 'you' : 'Shelly', go: function () { close(); setTimeout(open, 100); } });
+      }
+    });
+    if (!results.length) { out.innerHTML = '<div style="padding:10px;color:#9ca3af;font-size:12px;">No matches.</div>'; return; }
+    out.innerHTML = results.slice(0, 12).map(function (r, i) {
+      return '<div class="shelly-search-row" data-i="' + i + '"><span class="kind">' + r.kind + '</span>' + escapeHtml(r.label) + (r.sub ? ' <span style="color:#9ca3af;font-size:11px;">— ' + escapeHtml(r.sub) + '</span>' : '') + '</div>';
+    }).join('');
+    out.querySelectorAll('[data-i]').forEach(function (el) {
+      el.addEventListener('click', function () { results[parseInt(el.dataset.i)].go(); });
+    });
+  }
+
+  // ============================================================
+  // FEATURE: Rich inline cards
+  // ============================================================
+  function renderStudentCardHtml(s) {
+    if (!s) return '';
+    const progressBar = s.progress != null ? '<div class="bar"><span style="width:' + s.progress + '%;"></span></div>' : '';
+    const pill = s.progress == null ? 'gray' : s.progress >= 60 ? 'green' : s.progress >= 50 ? 'yellow' : 'red';
+    const pillTxt = s.progress == null ? 'New' : s.progress >= 60 ? 'On track' : s.progress >= 50 ? 'Falling behind' : 'At risk';
+    return '<div class="ss-card" data-card="student" data-id="' + s.id + '">' +
+      '<div class="av" style="background:' + (s.color || '#1e2130') + '">' + (s.avatar || s.name[0]) + '</div>' +
+      '<div class="info"><div class="nm">' + escapeHtml(s.name) + '</div>' +
+      '<div class="sub">' + progressBar + '<span class="pill ' + pill + '">' + pillTxt + '</span><span style="color:#6b7280;">' + (s.active || '') + '</span></div></div>' +
+      '<span class="arrow">›</span></div>';
+  }
+  function renderSessionCardHtml(s) {
+    if (!s) return '';
+    const u = db.findUser((s.studentIds || [])[0]);
+    const t = new Date(s.startsAt);
+    const when = t.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const pill = s.status === 'cancelled' ? 'red' : s.status === 'completed' ? 'gray' : 'green';
+    return '<div class="ss-card" data-card="session" data-id="' + s.id + '">' +
+      '<div class="av" style="background:#1e3a8a">📅</div>' +
+      '<div class="info"><div class="nm">' + (u ? escapeHtml(u.name) : 'Session') + ' — ' + escapeHtml(s.title || 'Live') + '</div>' +
+      '<div class="sub"><span>' + when + '</span><span class="pill ' + pill + '">' + s.status + '</span></div></div>' +
+      '<span class="arrow">›</span></div>';
+  }
+  function renderCourseCardHtml(c) {
+    if (!c) return '';
+    return '<div class="ss-card" data-card="course" data-id="' + c.id + '">' +
+      '<div class="av" style="background:' + (c.color || '#dbeafe') + ';color:#1e2130;">' + (c.icon || '📚') + '</div>' +
+      '<div class="info"><div class="nm">' + escapeHtml(c.name) + '</div>' +
+      '<div class="sub"><span>' + (c.type === '1on1' ? '1:1' : c.type) + '</span>' + (c.studentCount ? ' · <span>' + c.studentCount + ' learners</span>' : '') + (c.creditsRemaining != null ? ' · <span>' + c.creditsRemaining + ' credits</span>' : '') + '</div></div>' +
+      '<span class="arrow">›</span></div>';
+  }
+  function renderChatCardHtml(ch) {
+    if (!ch) return '';
+    const u = db.findUser(ch.userId);
+    const last = ch.messages[ch.messages.length - 1];
+    const preview = last ? String(last.text).slice(0, 50) : '';
+    return '<div class="ss-card" data-card="chat" data-id="' + ch.id + '">' +
+      '<div class="av" style="background:' + ((u && u.color) || '#9ca3af') + '">' + ((u && u.avatar) || '?') + '</div>' +
+      '<div class="info"><div class="nm">' + (u ? escapeHtml(u.name) : 'Chat') + (ch.unread ? ' <span class="pill purple">' + ch.unread + ' new</span>' : '') + '</div>' +
+      '<div class="sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">' + escapeHtml(preview) + '</div></div>' +
+      '<span class="arrow">›</span></div>';
+  }
+  function renderCardsHtml(cards) {
+    if (!cards || !cards.length) return '';
+    const html = cards.map(function (c) {
+      if (c.type === 'student') return renderStudentCardHtml(typeof c.data === 'object' ? c.data : db.findUser(c.id));
+      if (c.type === 'session') return renderSessionCardHtml(typeof c.data === 'object' ? c.data : db.findSession(c.id));
+      if (c.type === 'course')  return renderCourseCardHtml(typeof c.data === 'object' ? c.data : db.findCourse(c.id));
+      if (c.type === 'chat')    return renderChatCardHtml(typeof c.data === 'object' ? c.data : db.findChat(c.id));
+      return '';
+    }).join('');
+    return '<div class="ss-cards">' + html + '</div>';
+  }
+  function wireCardClicks(div) {
+    div.querySelectorAll('[data-card]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        const t = el.dataset.card; const id = el.dataset.id;
+        if (t === 'student') window.location.href = '13-progress-reports.html';
+        else if (t === 'session') window.location.href = '8-session-modal.html';
+        else if (t === 'course') window.location.href = '6-course-home.html';
+        else if (t === 'chat') window.location.href = '14-chats.html';
+      });
+    });
+  }
+
+  // ============================================================
+  // FEATURE: Sparkline (tiny inline SVG chart)
+  // ============================================================
+  function sparklineSvg(data, width, height) {
+    if (!data || !data.length) return '';
+    width = width || 60; height = height || 18;
+    const min = Math.min.apply(null, data);
+    const max = Math.max.apply(null, data);
+    const range = (max - min) || 1;
+    const step = width / (data.length - 1 || 1);
+    const points = data.map(function (v, i) { return (i * step).toFixed(1) + ',' + (height - ((v - min) / range) * (height - 2) - 1).toFixed(1); }).join(' ');
+    return '<svg class="ss-spark" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '"><polyline fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="' + points + '"/></svg>';
+  }
+
+  // ============================================================
+  // FEATURE: Undo system — wraps any mutation with a 5s undo toast
+  // ============================================================
+  function withUndo(label, doFn, undoFn) {
+    doFn();
+    showUndoToast(label, undoFn);
+  }
+  function showUndoToast(label, undoFn) {
+    let t = document.querySelector('.app-toast');
+    if (!t) { t = document.createElement('div'); t.className = 'app-toast'; t.style.cssText = 'position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;z-index:10001;box-shadow:0 6px 20px rgba(0,0,0,0.2);opacity:0;transition:opacity 180ms;font-family:Inter,sans-serif;'; document.body.appendChild(t); }
+    t.classList.add('with-undo');
+    t.innerHTML = '<span>' + escapeHtml(label) + '</span><button class="undo-btn" type="button">Undo</button>';
+    t.style.opacity = '1';
+    const btn = t.querySelector('.undo-btn');
+    let undone = false;
+    btn.addEventListener('click', function () {
+      undone = true; try { undoFn(); } catch (e) {}
+      t.innerHTML = '<span>Undone ↩️</span>';
+      setTimeout(function () { t.style.opacity = '0'; t.classList.remove('with-undo'); }, 1200);
+    });
+    setTimeout(function () { if (!undone) { t.style.opacity = '0'; t.classList.remove('with-undo'); } }, 5000);
+  }
+
+  // ============================================================
+  // FEATURE: Bulk actions
+  // ============================================================
+  function bulkMarkAllChatsRead() {
+    const before = db.get().chats.map(function (c) { return { id: c.id, unread: c.unread }; });
+    withUndo('Marked all chats as read',
+      function () { db.update(function (d) { d.chats.forEach(function (c) { c.unread = 0; }); }); },
+      function () { db.update(function (d) { d.chats.forEach(function (c) { const o = before.find(function (b) { return b.id === c.id; }); if (o) c.unread = o.unread; }); }); }
+    );
+  }
+  function bulkCancelStudentSessionsThisWeek(studentId) {
+    const u = db.findUser(studentId); if (!u) return 0;
+    const now = Date.now(), wk = now + 7 * 86400000;
+    const targets = db.get().sessions.filter(function (s) {
+      if (s.status !== 'upcoming') return false;
+      if ((s.studentIds || []).indexOf(studentId) < 0) return false;
+      const t = new Date(s.startsAt).getTime();
+      return t >= now && t <= wk;
+    }).map(function (s) { return s.id; });
+    if (!targets.length) return 0;
+    withUndo('Cancelled ' + targets.length + ' session(s) for ' + u.name,
+      function () { db.update(function (d) { d.sessions.forEach(function (s) { if (targets.indexOf(s.id) >= 0) s.status = 'cancelled'; }); }); },
+      function () { db.update(function (d) { d.sessions.forEach(function (s) { if (targets.indexOf(s.id) >= 0) s.status = 'upcoming'; }); }); }
+    );
+    return targets.length;
+  }
+  function bulkSendRecapToToday() {
+    const today = new Date().toISOString().slice(0, 10);
+    const todays = db.get().sessions.filter(function (s) { return s.startsAt.startsWith(today); });
+    const studentIds = {};
+    todays.forEach(function (s) { (s.studentIds || []).forEach(function (id) { studentIds[id] = 1; }); });
+    let sent = 0;
+    Object.keys(studentIds).forEach(function (sid) {
+      const student = db.findUser(sid); if (!student) return;
+      const parent = (student.parent && db.get().users.find(function (u) { return u.name === student.parent; })) || null;
+      if (!parent) return;
+      const chat = db.get().chats.find(function (c) { return c.userId === parent.id; });
+      if (!chat) return;
+      const text = applyTemplate('recap', student, parent.name);
+      db.sendMessage(chat.id, text);
+      sent++;
+    });
+    return sent;
+  }
+
+  // ============================================================
+  // FEATURE: Multi-step playbooks
+  // ============================================================
+  const PLAYBOOKS = {
+    'onboard-student': {
+      name: 'Onboard a new student 🎓',
+      run: function () {
+        open();
+        say("Let's onboard a new student! 🌟 What's their name?", { instant: true });
+        setFlow({ type: 'pb-onboard-name', handler: function (name) {
+          if (!name.trim()) { say('Need a name to continue. (or say <code>cancel</code>)'); setFlow({ type: 'pb-onboard-name', handler: arguments.callee }); return; }
+          say('Got it — <strong>' + escapeHtml(name) + '</strong>. What\'s their email or phone?');
+          setFlow({ type: 'pb-onboard-email', handler: function (email) {
+            const COLORS = ['#7c3aed','#f97316','#16a34a','#ef4444','#a855f7','#0ea5e9'];
+            const newUser = { id: 'u-' + Date.now(), name: name.trim(), role: 'student', email: email.trim(), avatar: name.trim()[0].toUpperCase(), color: COLORS[Math.floor(Math.random()*COLORS.length)], status: 'active', active: 'just now', progress: 0, sessionsAttended: 0, sessionsTotal: 0 };
+            withUndo('Added ' + name + ' to your roster',
+              function () { db.update(function (d) { d.users.unshift(newUser); }); },
+              function () { db.update(function (d) { d.users = d.users.filter(function (u) { return u.id !== newUser.id; }); }); }
+            );
+            say('✅ <strong>' + escapeHtml(name) + '</strong> added! Want to schedule their first session now?', {
+              actions: [
+                { label: 'Yes, schedule', primary: true, onClick: function () { startScheduleFlow(newUser); } },
+                { label: 'Send welcome message', onClick: function () { say('Drafting a welcome message…'); setTimeout(function () { say('<em>"' + escapeHtml(applyTemplate('welcome_student', newUser)) + '"</em><br><br>Open <em>Chats</em> to send it once they accept the invite.'); }, 600); } },
+                { label: "I'm done" },
+              ],
+            });
+          }});
+        }});
+      },
+    },
+    'weekly-wrap': {
+      name: 'End-of-week wrap 📊',
+      run: function () {
+        open();
+        say('Running your weekly wrap — three steps. ✨', { instant: true });
+        setTimeout(function () { showSummary(); }, 800);
+        setTimeout(function () {
+          const sent = bulkSendRecapToToday();
+          if (sent > 0) say('Sent recap drafts to <strong>' + sent + ' parent(s)</strong>. Open <em>Chats</em> to review.');
+          else say('No sessions today to recap. Skipping. ✨');
+        }, 2400);
+        setTimeout(function () {
+          if (db.unreadNotifCount() > 0) {
+            say('Last step — clear the notification queue?', {
+              actions: [
+                { label: 'Mark all read', primary: true, onClick: function () { bulkMarkAllChatsRead(); db.markAllNotificationsRead(); say('All caught up. Have a great weekend! 💜'); } },
+                { label: 'Skip' },
+              ],
+            });
+          } else { say('Inbox already at zero. You\'re all set! 💜'); }
+        }, 4500);
+      },
+    },
+    'friday-cleanup': {
+      name: 'Friday cleanup 🧹',
+      run: function () {
+        open();
+        const cancelled = db.get().sessions.filter(function (s) { return s.status === 'cancelled'; });
+        say('Friday cleanup time. ✨ I see <strong>' + cancelled.length + ' cancelled session(s)</strong>.', { instant: true });
+        if (cancelled.length) {
+          setTimeout(function () {
+            say('Want me to walk through rescheduling them?', {
+              actions: [
+                { label: 'Reschedule them', primary: true, onClick: function () { say('Open the course → tap the cancelled session → reschedule. I\'ll keep an eye on credits while you do.'); } },
+                { label: 'Skip' },
+              ],
+            });
+          }, 600);
+        }
+        setTimeout(function () {
+          if (db.get().credits.balance < 20) {
+            say('Heads up — only <strong>' + db.get().credits.balance + ' credits</strong> left. Top up?', {
+              actions: [{ label: 'Top up Plus', primary: true, action: 'topup', args: { pack: 'plus' } }, { label: 'Not now' }],
+            });
+          }
+        }, 2000);
+      },
+    },
+  };
+  function runPlaybook(key) { const pb = PLAYBOOKS[key]; if (pb && pb.run) pb.run(); }
+
+  // ============================================================
+  // FEATURE: Pattern learning (track command usage → suggest defaults)
+  // ============================================================
+  function trackCommand(cmd) {
+    if (!window.db || !cmd) return;
+    db.bumpCommand(cmd);
+  }
+
   function loadGemini() {
     if (window.gemini) return;
     const existing = document.querySelector('script[src="gemini.js"]');

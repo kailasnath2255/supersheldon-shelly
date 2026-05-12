@@ -145,6 +145,9 @@
     shellyReminders: [], // scheduled nudges: { id, text, dueAt, fired }
     shellyMutedUntil: 0, // ms epoch — proactive ticks paused until this time
     shellyPrefs: {},     // arbitrary key/value prefs Shelly learns about the user
+    shellyPinned: [],    // pinned message IDs for the chat panel strip
+    shellyCommandUsage: {}, // track {/topup: 5, /summary: 12, ...} for smart chips
+    shellyPanelMode: 'full', // 'full' | 'compact'
 
     auth: {
       signedIn: false,
@@ -288,6 +291,20 @@
 
   db.setPref      = function (k, v) { db.update(function (d) { d.shellyPrefs = d.shellyPrefs || {}; d.shellyPrefs[k] = v; }); };
   db.getPref      = function (k) { return (cache.shellyPrefs || {})[k]; };
+
+  // Pinned messages for Shelly's panel strip
+  db.pinMessage   = function (msg) { db.update(function (d) { d.shellyPinned = d.shellyPinned || []; if (d.shellyPinned.length >= 5) d.shellyPinned.shift(); d.shellyPinned.push({ id: 'pin-' + Date.now(), text: msg.text, from: msg.from || 'shelly', at: new Date().toISOString() }); }); };
+  db.unpinMessage = function (id) { db.update(function (d) { d.shellyPinned = (d.shellyPinned || []).filter(function (p) { return p.id !== id; }); }); };
+  db.listPinned   = function () { return (cache.shellyPinned || []).slice(); };
+  db.clearPinned  = function () { db.update(function (d) { d.shellyPinned = []; }); };
+
+  // Command usage tracking → drives smart chip suggestions
+  db.bumpCommand  = function (cmd) { db.update(function (d) { d.shellyCommandUsage = d.shellyCommandUsage || {}; d.shellyCommandUsage[cmd] = (d.shellyCommandUsage[cmd] || 0) + 1; }); };
+  db.topCommands  = function (n) { const u = cache.shellyCommandUsage || {}; return Object.keys(u).sort(function (a, b) { return u[b] - u[a]; }).slice(0, n || 3); };
+
+  // Panel mode (compact vs full)
+  db.setPanelMode = function (m) { db.update(function (d) { d.shellyPanelMode = m; }); };
+  db.getPanelMode = function () { return cache.shellyPanelMode || 'full'; };
 
   // ===== Auth =====
   db.signIn = function (identifier, method) {
