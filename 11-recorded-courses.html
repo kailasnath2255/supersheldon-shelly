@@ -152,6 +152,7 @@ document.querySelectorAll('#grid .card').forEach(function (c) {
   c.addEventListener('click', function () { window.location.href = '7-course-content.html'; });
 });
 window.addEventListener('load', function () {
+  shelly.context({ page: 'recorded' });
   shelly.suggest(['Top performing course?', 'Why is completion 63%?', 'Suggest a new course']);
   shelly.say("Your recorded library has earned <strong>2,140 watch hours</strong> this month — that's about 89 days of learning! 🎥 Your top course is <em>Vedic Math Crash Course</em> with 312 enrollments.", {
     delay: 700,

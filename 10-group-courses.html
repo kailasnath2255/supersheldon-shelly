@@ -140,6 +140,7 @@ document.querySelectorAll('#grid .card').forEach(function (c) {
   });
 });
 window.addEventListener('load', function () {
+  shelly.context({ page: 'group' });
   shelly.suggest(['Which course is lagging?', 'Schedule a new cohort', 'Top up credits']);
   shelly.say("You have <strong>6 active group courses</strong> with 110 total learners. <em>Public Speaking Bootcamp</em> is showing <strong>low engagement</strong> this week — want me to suggest a re-engagement plan? 👋", {
     delay: 700,

@@ -304,6 +304,10 @@ document.querySelectorAll('.add-link').forEach(function (el) {
 <script>
 // Shelly nudges on the course home.
 window.addEventListener('load', function () {
+  // Default to the first 1:1 course as the "current" course context — Shelly
+  // will use this to pre-fill multi-turn flows ("schedule a session" knows who)
+  const ctxCourse = (db.get().courses.find(function (c) { return c.type === '1on1'; }) || {}).id;
+  shelly.context({ page: 'course-home', courseId: ctxCourse });
   shelly.say(
     "Your session with <strong>Ekta test</strong> starts in <strong>15 minutes</strong>! 🕐 Tap <em>Start</em> on the May 11 session when you're ready to go live.",
     {

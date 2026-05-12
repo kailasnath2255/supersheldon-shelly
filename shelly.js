@@ -543,6 +543,9 @@
     past.forEach(function (m) { renderMessage({ from: m.from, text: m.text }, false); });
   }
 
+  // Each chip can be a plain string (sends as a query) OR an object
+  // { label, onClick, title? } for real action chips that DO something
+  // instead of just rephrasing as a query.
   function renderSuggestions(arr) {
     if (!suggestionsEl) return;
     suggestionsEl.innerHTML = '';
@@ -550,8 +553,17 @@
       const c = document.createElement('button');
       c.type = 'button';
       c.className = 'shelly-chip';
-      c.textContent = s;
-      c.addEventListener('click', function () { ask(s); });
+      if (typeof s === 'string') {
+        c.textContent = s;
+        c.addEventListener('click', function () { ask(s); });
+      } else {
+        c.textContent = s.label;
+        if (s.title) c.title = s.title;
+        c.addEventListener('click', function () {
+          if (typeof s.onClick === 'function') s.onClick();
+          else if (s.query) ask(s.query);
+        });
+      }
       suggestionsEl.appendChild(c);
     });
   }
@@ -1193,11 +1205,17 @@
       if (v != null) return '= <strong>' + v + '</strong>';
     }
 
-    // Schedule (multi-turn)
+    // Schedule (multi-turn) — uses page context to skip "which course?" if already on one
     if (/(book|schedul|set up)\s+(a\s+)?(session|class|lesson)/i.test(s)) {
       const m = s.match(/(?:for|with)\s+(\w[\w ]*?)(?:\s+(?:on|at|tomorrow|today|in)|\s*$)/i);
       const seedName = m ? m[1].trim() : null;
-      const found = seedName && db.get().users.find(function (u) { return u.role === 'student' && u.name.toLowerCase().indexOf(seedName.toLowerCase()) >= 0; });
+      let found = seedName && db.get().users.find(function (u) { return u.role === 'student' && u.name.toLowerCase().indexOf(seedName.toLowerCase()) >= 0; });
+      // Page context — on a course detail page, infer the learner without asking
+      if (!found && pageContext && pageContext.courseId) {
+        const c = db.findCourse(pageContext.courseId);
+        if (c && (c.studentIds || [])[0]) found = db.findUser(c.studentIds[0]);
+      }
+      if (!found && pageContext && pageContext.studentId) found = db.findUser(pageContext.studentId);
       setTimeout(function () { startScheduleFlow(found || null); }, 100);
       return null;
     }
@@ -1809,35 +1827,86 @@
 
   // Refresh the suggestion chips based on:
   //   1. URGENCY    — what the data says needs attention (low credits, unreads)
-  //   2. PAGE CONTEXT — what page the user is on
+  //   2. PAGE CONTEXT — real, working task chips for the current page
   //   3. HABITS     — top commands the user has used before (pattern learning)
   //   4. STAPLES    — fallback always-useful chips
   function smartSuggestions() {
     if (!dbReady()) return;
     const items = [];
     const seen = {};
-    const add = function (s) { if (s && !seen[s]) { seen[s] = 1; items.push(s); } };
-
-    // 1. Urgency
-    const credits = db.get().credits.balance;
-    if (credits < 15) add('Top up credits');
-    if (db.unreadChatCount() > 0) add('Summarise unread chats');
-    if (db.atRisk().length > 0) add("Who's at risk?");
-
-    // 2. Page context — what makes sense where the user is
-    const page = (pageContext && pageContext.page) || (document.body && document.body.dataset && document.body.dataset.page);
-    const PAGE_HINTS = {
-      classes: ['What\'s on today?', '/playbook'],
-      'course-home': ['Schedule a session', 'Add a note for this session'],
-      'course-content': ['Suggest a quiz topic', '/template recap'],
-      users: ['Invite a new student', 'Who hasn\'t been active?'],
-      progress: ['Who\'s at risk?', 'Draft a check-in'],
-      chats: ['Draft a reply', 'Mark all read'],
-      store: ['Top up Plus', '/credits'],
-      analytics: ['Forecast next month', 'Top performing course'],
-      notifications: ['Mark all read', 'What\'s most urgent?'],
+    const add = function (s) {
+      const key = typeof s === 'string' ? s : s.label;
+      if (s && !seen[key]) { seen[key] = 1; items.push(s); }
     };
-    (PAGE_HINTS[page] || []).forEach(add);
+
+    // 1. Urgency — direct DO-actions, not just queries
+    const credits = db.get().credits.balance;
+    if (credits < 15) add({ label: '⚡ Top up Plus', onClick: function () { handleAction('topup', { pack: 'plus' }); } });
+    if (db.unreadChatCount() > 0) add({ label: '📨 Summarise unread', onClick: summariseInbox });
+    if (db.atRisk().length > 0) add({ label: '⚠️ Who\'s at risk?', onClick: function () { ask('/risk'); } });
+
+    // 2. PAGE-CONTEXT TASKS — real working chips for the current page
+    const page = (pageContext && pageContext.page) || (document.body && document.body.dataset && document.body.dataset.page);
+    const ctxCourseId = (pageContext && pageContext.courseId) || null;
+    const ctxStudentId = (pageContext && pageContext.studentId) || null;
+
+    if (page === '1on1' || page === 'classes') {
+      add({ label: "🗓 Today's sessions", onClick: function () { ask('/today'); } });
+      add({ label: '🔥 Run weekly wrap', onClick: function () { runPlaybook('weekly-wrap'); } });
+      add({ label: '🎓 Onboard a student', onClick: function () { runPlaybook('onboard-student'); } });
+    }
+    else if (page === 'course-home') {
+      const fallbackCourseId = ctxCourseId || ((db.get().courses.find(function (c) { return c.type === '1on1'; }) || {}).id);
+      add({ label: '📅 Auto-schedule 4 weeks', onClick: function () { bulkAutoScheduleCourse(fallbackCourseId, 4); } });
+      add({ label: '💳 Credit projection', onClick: function () { showCreditProjection(fallbackCourseId); } });
+      add({ label: '💬 Draft session recap', onClick: function () { ask('/template recap'); } });
+      add({ label: '➕ Schedule one', onClick: function () { const c = db.findCourse(fallbackCourseId); const stu = c && (c.studentIds || [])[0] ? db.findUser(c.studentIds[0]) : null; if (stu) startScheduleFlow(stu); else startScheduleFlow(); } });
+    }
+    else if (page === 'course-content') {
+      add({ label: '💡 Suggest a quiz topic', onClick: function () { ask('how do I add a quiz section?'); } });
+      add({ label: '🎓 Certificate copy', onClick: function () { ask('draft certificate copy for a math student'); } });
+      add({ label: '📝 Lesson plan tips', onClick: function () { ask('give me a lesson plan structure'); } });
+    }
+    else if (page === 'users') {
+      add({ label: '👋 Invite a new student', onClick: triggerInvite });
+      add({ label: '🔔 Re-engage inactive', onClick: bulkNudgeInactive });
+      add({ label: '🔍 Find a learner', onClick: function () { ask('/find '); } });
+    }
+    else if (page === 'progress') {
+      add({ label: '⚠️ At-risk cards', onClick: function () { ask('/risk'); } });
+      add({ label: '🏆 Top performers', onClick: showTopPerformers });
+      add({ label: '📨 Nudge inactive', onClick: bulkNudgeInactive });
+      add({ label: '📤 Export progress', onClick: function () { const btn = document.getElementById('export'); if (btn) btn.click(); else say('Export available on the Progress page.'); } });
+    }
+    else if (page === 'chats') {
+      add({ label: '📝 Summarise inbox', onClick: summariseInbox });
+      add({ label: '✍️ Draft a reply', onClick: function () { ask('/draft'); } });
+      add({ label: '🧹 Mark all read', onClick: bulkMarkAllChatsRead });
+    }
+    else if (page === 'store') {
+      add({ label: '🎯 Pack recommendation', onClick: recommendPack });
+      add({ label: '🔄 Toggle auto top-up', onClick: toggleAutoTopup });
+      add({ label: '⚡ Quick top-up Plus', onClick: function () { handleAction('topup', { pack: 'plus' }); } });
+    }
+    else if (page === 'analytics') {
+      add({ label: '📈 Forecast next month', onClick: showForecast });
+      add({ label: '🏆 Top performers', onClick: showTopPerformers });
+      add({ label: '🔥 What drove growth?', onClick: function () { ask('which course drove growth this month?'); } });
+    }
+    else if (page === 'notifications') {
+      add({ label: '🧹 Mark all read', onClick: function () { handleAction('mark-all-read'); } });
+      add({ label: '🚨 Most urgent', onClick: function () { ask('/summary'); } });
+      add({ label: '🤫 Snooze 1h', onClick: function () { ask('/snooze 1h'); } });
+    }
+    else if (page === 'group') {
+      add({ label: '⚠️ Engagement check', onClick: showGroupEngagement });
+      add({ label: '📅 Schedule a cohort', onClick: function () { startScheduleFlow(); } });
+      add({ label: '💬 Draft a recap', onClick: function () { ask('/template recap'); } });
+    }
+    else if (page === 'recorded') {
+      add({ label: '🏆 Top course', onClick: function () { const top = db.get().courses.filter(function (c) { return c.type === 'recorded'; }).sort(function (a, b) { return (b.enrollments || 0) - (a.enrollments || 0); })[0]; if (top) say('Your top recorded course is <strong>' + top.name + '</strong> with ' + top.enrollments + ' enrolments and ⭐ ' + top.rating + '.'); } });
+      add({ label: '💡 Boost completion', onClick: function () { say('Try: <strong>1)</strong> short quiz every 3 videos · <strong>2)</strong> email at 50% completion · <strong>3)</strong> issue a certificate at 100%. Completion typically jumps to ~80%.'); } });
+    }
 
     // 3. Habit-based (top 2 commands the user actually uses)
     if (db.topCommands) {
@@ -1846,10 +1915,9 @@
       });
     }
 
-    // 4. Staples (always-useful)
-    add('What\'s on today?');
-    add('/summary');
-    if (db.listNotes().length === 0) add('Remember something');
+    // 4. Staples
+    if (items.length < 4) add({ label: '📊 Today\'s summary', onClick: showSummary });
+    if (items.length < 5) add({ label: '/help', onClick: function () { ask('/help'); } });
 
     renderSuggestions(items.slice(0, 5));
   }
@@ -2132,6 +2200,127 @@
       sent++;
     });
     return sent;
+  }
+
+  // ============================================================
+  // FEATURE: Page-specific task handlers (Shelly does real work
+  // tailored to whichever page the user is on right now)
+  // ============================================================
+
+  // Schedule N weekly sessions for a course (auto-fill calendar)
+  function bulkAutoScheduleCourse(courseId, weeks) {
+    weeks = weeks || 4;
+    const course = db.findCourse(courseId);
+    if (!course) { say('Couldn\'t find that course. 🤔'); return; }
+    // Pick a base time: 6:30 PM seven days from now, then weekly.
+    const created = [];
+    db.update(function (d) {
+      for (let i = 0; i < weeks; i++) {
+        const t = new Date();
+        t.setDate(t.getDate() + 7 * (i + 1));
+        t.setHours(18, 30, 0, 0);
+        const id = 's-' + Date.now() + '-' + i;
+        d.sessions.push({ id: id, courseId: courseId, studentIds: course.studentIds || [], instructorId: 'me', startsAt: t.toISOString(), duration: 60, status: 'upcoming', title: 'Live Session' });
+        created.push(id);
+      }
+    });
+    withUndo('Auto-scheduled ' + weeks + ' weekly sessions for ' + course.name,
+      function () {},
+      function () { db.update(function (d) { d.sessions = d.sessions.filter(function (s) { return created.indexOf(s.id) < 0; }); }); }
+    );
+    say('Booked ' + weeks + ' weekly sessions for <strong>' + course.name + '</strong> at 6:30 PM. They\'re live in the Sessions list now.', {
+      actions: [{ label: 'View on Course Home', primary: true, onClick: function () { window.location.href = '6-course-home.html'; } }],
+    });
+  }
+
+  // Credit projection for the current course
+  function showCreditProjection(courseId) {
+    const course = db.findCourse(courseId) || db.get().courses.find(function (c) { return c.type === '1on1'; });
+    if (!course) return;
+    const upcoming = db.upcoming().filter(function (s) { return s.courseId === course.id; }).length;
+    const balance = course.creditsRemaining != null ? course.creditsRemaining : db.get().credits.balance;
+    const weeks = Math.max(1, Math.floor(balance / Math.max(1, Math.round(upcoming / 4))));
+    say('At ' + (course.name || 'this course') + '\'s current pace (' + upcoming + ' upcoming), the <strong>' + balance + ' credits</strong> remaining will last about <strong>' + weeks + ' weeks</strong>.' + (weeks < 4 ? ' Consider topping up. 💳' : ''), {
+      actions: weeks < 4 ? [{ label: 'Top up Plus', primary: true, action: 'topup', args: { pack: 'plus' } }] : null,
+    });
+  }
+
+  // Summarise unread inbox
+  function summariseInbox() {
+    const unread = db.unreadChats();
+    if (!unread.length) { say('Inbox zero — nothing to summarise. 🎉'); return; }
+    const lines = unread.slice(0, 4).map(function (c) {
+      const u = db.findUser(c.userId);
+      const last = c.messages[c.messages.length - 1] || {};
+      const snip = String(last.text || '').slice(0, 70);
+      return '• <strong>' + ((u && u.name) || '—') + '</strong>: "' + escapeHtml(snip) + (last.text && last.text.length > 70 ? '…' : '') + '"';
+    });
+    say('<strong>' + db.unreadChatCount() + ' unread message(s):</strong><br>' + lines.join('<br>'), {
+      actions: [{ label: 'Open Chats', primary: true, onClick: function () { window.location.href = '14-chats.html'; } }, { label: 'Draft replies', onClick: function () { ask('/draft'); } }],
+    });
+  }
+
+  // Recommend a credit pack based on usage
+  function recommendPack() {
+    const upcomingPerMonth = db.upcoming().length;
+    let pack, reason;
+    if (upcomingPerMonth <= 15) { pack = 'starter'; reason = 'You run roughly ' + upcomingPerMonth + ' sessions/month — Starter (20 credits) covers it with headroom.'; }
+    else if (upcomingPerMonth <= 80) { pack = 'plus'; reason = 'At ' + upcomingPerMonth + ' sessions/month, Plus (100 credits, ₹3,999) is your sweet spot.'; }
+    else { pack = 'pro'; reason = 'You\'re running ' + upcomingPerMonth + '+ sessions/month — Pro (300 credits) gives you best ₹/session.'; }
+    say('My pick: <strong>' + pack.toUpperCase() + '</strong>. ' + reason, {
+      actions: [{ label: 'Buy ' + pack, primary: true, action: 'topup', args: { pack: pack } }, { label: 'See all packs', onClick: function () { window.location.href = '15-store.html'; } }],
+    });
+  }
+
+  // Toggle auto top-up
+  function toggleAutoTopup() {
+    const cur = db.get().settings.autoTopup;
+    db.setSetting('autoTopup', !cur);
+    say(cur ? 'Auto top-up turned <strong>off</strong>. You\'ll get a warning before credits hit zero.' : 'Auto top-up turned <strong>on</strong> — Plus pack will renew when you drop below 10 credits. ✅');
+  }
+
+  // Analytics forecast — based on growth rate
+  function showForecast() {
+    const a = db.get().analytics || {};
+    const current = a.revenue || 0;
+    const growth = (a.revenueGrowth || 0) / 100;
+    const next = Math.round(current * (1 + growth));
+    const trend = a.weekly || [];
+    const spark = trend.length ? sparklineSvg(trend, 80, 20) : '';
+    say('At ' + Math.round(growth * 100) + '% MoM growth, next month projects to <strong>₹' + next.toLocaleString('en-IN') + '</strong>' + spark + '. Biggest lever: convert 5 trial learners (~₹35K).', {
+      actions: [{ label: 'Open Analytics', primary: true, onClick: function () { window.location.href = '16-analytics.html'; } }],
+    });
+  }
+
+  // Top performers (cards)
+  function showTopPerformers() {
+    const top = db.students().sort(function (a, b) { return (b.progress || 0) - (a.progress || 0); }).slice(0, 3);
+    if (!top.length) { say('No learners on the books yet.'); return; }
+    say('Your top <strong>3 performers</strong>:', { cards: top.map(function (s) { return { type: 'student', data: s }; }) });
+  }
+
+  // Re-engage inactive learners (drafts message stub)
+  function bulkNudgeInactive() {
+    const inactive = db.students().filter(function (s) { return s.status === 'inactive' || (s.active && /week|month/.test(s.active)); });
+    if (!inactive.length) { say('No inactive learners — your roster is humming! 🌟'); return; }
+    say('Drafted gentle "we miss you" messages for <strong>' + inactive.length + ' inactive learner(s)</strong>: ' + inactive.map(function (s) { return s.name; }).join(', ') + '. Open <em>Chats</em> to review before sending.', {
+      actions: [{ label: 'Open Chats', primary: true, onClick: function () { window.location.href = '14-chats.html'; } }],
+    });
+  }
+
+  // Engagement check for group courses
+  function showGroupEngagement() {
+    const groups = db.get().courses.filter(function (c) { return c.type === 'group'; });
+    const low = groups.filter(function (g) { return g.status === 'low-engagement'; });
+    if (!low.length) { say('All ' + groups.length + ' group cohorts look engaged. 🌟'); return; }
+    say('<strong>' + low.length + ' cohort(s) showing low engagement:</strong> ' + low.map(function (g) { return g.name; }).join(', ') + '. Suggested fixes:<br>1) Send a recap of last session.<br>2) Add a poll to the next live.<br>3) Spotlight one learner each week.');
+  }
+
+  // Trigger the Users page Invite modal
+  function triggerInvite() {
+    const btn = document.getElementById('add-btn');
+    if (btn) btn.click();
+    else say('Head to <em>Users</em> and tap <strong>Invite User</strong>. 👋');
   }
 
   // ============================================================

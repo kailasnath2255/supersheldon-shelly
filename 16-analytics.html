@@ -132,6 +132,7 @@ document.getElementById('range').addEventListener('change', function () { app.to
 document.getElementById('export-btn').addEventListener('click', function () { app.toast('Generating PDF report…'); });
 
 window.addEventListener('load', function () {
+  shelly.context({ page: 'analytics' });
   const a = db.get().analytics || {};
   const revL = (a.revenue >= 100000 ? '₹' + (a.revenue / 100000).toFixed(2) + 'L' : '₹' + (a.revenue || 0).toLocaleString('en-IN'));
   shelly.suggest(['Why is revenue up?', "What's my best course?", 'Forecast next month']);

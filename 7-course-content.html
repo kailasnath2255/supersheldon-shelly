@@ -261,6 +261,8 @@ if (search) {
 <script>
 // Shelly nudges on the content tab.
 window.addEventListener('load', function () {
+  const ctxCourse = (db.get().courses.find(function (c) { return c.type === '1on1'; }) || {}).id;
+  shelly.context({ page: 'course-content', courseId: ctxCourse });
   const sections = document.querySelectorAll('[data-section]');
   const hasResources = Array.from(sections).some(function (s) { return !s.textContent.includes('0 Resource'); });
   if (!hasResources) {
