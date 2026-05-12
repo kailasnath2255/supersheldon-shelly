@@ -274,6 +274,36 @@
       '.shelly-panel.compact .shelly-suggestions{padding:10px 14px 8px;}',
       '.shelly-panel.compact .shelly-search{display:none;}',
       '.shelly-panel.compact .shelly-pinned-strip{display:none;}',
+      // Welcome overlay (full-screen, multi-slide intro on every fresh login)
+      '.shelly-welcome{position:fixed;inset:0;background:linear-gradient(135deg,#7c3aed 0%,#2563eb 60%,#0ea5e9 100%);z-index:10010;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,sans-serif;color:#fff;padding:24px;animation:wel-fade 360ms ease;}',
+      '@keyframes wel-fade{from{opacity:0;}to{opacity:1;}}',
+      '.shelly-welcome.exit{animation:wel-out 420ms ease forwards;}',
+      '@keyframes wel-out{to{opacity:0;transform:scale(1.05);}}',
+      '.shelly-welcome::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,255,255,0.18),transparent 50%),radial-gradient(ellipse at 80% 70%,rgba(255,255,255,0.12),transparent 50%);pointer-events:none;}',
+      '.wel-skip{position:absolute;top:18px;right:24px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);}',
+      '.wel-skip:hover{background:rgba(255,255,255,0.22);}',
+      '.wel-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:560px;text-align:center;animation:wel-slide 420ms ease;}',
+      '@keyframes wel-slide{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}',
+      '.wel-avatar{margin-bottom:16px;animation:wel-bob 3.6s ease-in-out infinite;filter:drop-shadow(0 12px 22px rgba(0,0,0,0.35));}',
+      '@keyframes wel-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}',
+      '.wel-title{font-size:34px;font-weight:800;line-height:1.1;letter-spacing:-0.5px;margin-bottom:10px;}',
+      '.wel-sub{font-size:16px;opacity:0.92;line-height:1.45;max-width:480px;margin-bottom:24px;}',
+      '.wel-input-wrap{width:100%;max-width:360px;margin-bottom:18px;}',
+      '.wel-input{width:100%;border:none;border-radius:14px;padding:14px 18px;font-size:16px;font-family:inherit;background:rgba(255,255,255,0.96);color:#1a1a2e;outline:none;box-shadow:0 8px 24px rgba(0,0,0,0.18);}',
+      '.wel-input:focus{box-shadow:0 8px 24px rgba(0,0,0,0.22),0 0 0 3px rgba(255,255,255,0.35);}',
+      '.wel-input::placeholder{color:#9ca3af;}',
+      '.wel-points{display:flex;flex-direction:column;gap:10px;width:100%;max-width:440px;margin-bottom:24px;text-align:left;}',
+      '.wel-point{display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:12px;padding:12px 14px;backdrop-filter:blur(8px);}',
+      '.wel-point .ic{font-size:22px;line-height:1;flex-shrink:0;}',
+      '.wel-point .t{font-size:14.5px;font-weight:600;}',
+      '.wel-point .d{font-size:12.5px;opacity:0.85;margin-top:2px;}',
+      '.wel-cta{background:#fff;color:#1e2130;border:none;padding:14px 36px;border-radius:99px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 10px 28px rgba(0,0,0,0.22);transition:transform 150ms,box-shadow 150ms;}',
+      '.wel-cta:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,0.28);}',
+      '.wel-cta:active{transform:translateY(0);}',
+      '.wel-cta:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}',
+      '.wel-dots{display:flex;gap:8px;margin-top:24px;}',
+      '.wel-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.35);transition:all 200ms;}',
+      '.wel-dot.on{background:#fff;width:24px;border-radius:99px;}',
       // Tour spotlight
       '.shelly-tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;pointer-events:auto;transition:opacity 220ms;}',
       '.shelly-tour-spot{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.55),0 0 0 4px #c4b5fd,0 0 30px rgba(124,58,237,0.6);z-index:10001;pointer-events:none;transition:all 300ms cubic-bezier(0.4,0,0.2,1);}',
@@ -1600,15 +1630,117 @@
     say("That's the tour! 🎉 You can always reach me here. Try asking <em>“who's at risk?”</em>, <em>“top up credits”</em>, or just type <code>/help</code> to see what I can do.");
   }
 
+  // ============================================================
+  // FEATURE: Big-screen welcome (the "fullscreen Shelly" greeting)
+  // ============================================================
+  // 3-slide intro that fires on every fresh login:
+  //   1. Shelly's hero intro + name capture
+  //   2. What Super Sheldon is
+  //   3. What Shelly can do for you
+  // After slide 3, fades out → minimises into the normal floating bubble
+  // and runs the spotlight tour from there.
+  function showWelcomeOverlay() {
+    // Don't double-open
+    if (document.querySelector('.shelly-welcome')) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'shelly-welcome';
+    document.body.appendChild(overlay);
+
+    let step = 0;
+    let userName = '';
+
+    function finish(skipTour) {
+      overlay.classList.add('exit');
+      setTimeout(function () {
+        overlay.remove();
+        if (userName && window.db) db.setMyName(userName);
+        if (skipTour) {
+          if (window.db) db.completeOnboarding();
+          open();
+          const nm = userName.split(/\s+/)[0] || (db.get().me.name || 'there');
+          say("All good, <strong>" + escapeHtml(nm) + "</strong>! 🌟 I'm always here in the bottom-right. Try <code>/help</code> any time. 💜", { delay: 400 });
+        } else {
+          // Brief Shelly opens, says a quick hi, then starts the spotlight tour
+          open();
+          const nm = userName.split(/\s+/)[0] || (db.get().me.name || 'there');
+          say("Great to meet you, <strong>" + escapeHtml(nm) + "</strong>! 🌟 Let me show you around — quick spotlight tour, 9 stops.", { delay: 300, instant: true });
+          setTimeout(function () { close(); startOnboardingTour(); }, 1200);
+        }
+      }, 420);
+    }
+
+    function render() {
+      overlay.innerHTML = '<button class="wel-skip" type="button" id="wel-skip-btn">Skip intro →</button>';
+      const stage = document.createElement('div');
+      stage.className = 'wel-stage';
+
+      if (step === 0) {
+        stage.innerHTML =
+          '<div class="wel-avatar">' + shellyHeroSvg(180) + '</div>' +
+          '<h1 class="wel-title">Hi! I\'m Shelly 🦸‍♀️</h1>' +
+          '<p class="wel-sub">Your AI sidekick on Super Sheldon. I read your real data, do real work, and keep an eye on what needs attention.</p>' +
+          '<div class="wel-input-wrap"><input class="wel-input" id="wel-name" placeholder="What should I call you?" autocomplete="off" value="' + escapeHtml(userName) + '"></div>' +
+          '<button class="wel-cta" id="wel-next" disabled>Continue →</button>' +
+          '<div class="wel-dots"><div class="wel-dot on"></div><div class="wel-dot"></div><div class="wel-dot"></div></div>';
+        stage.querySelector('.wel-skip') && stage.querySelector('.wel-skip').addEventListener('click', function () { finish(true); });
+        const input = stage.querySelector('#wel-name');
+        const next = stage.querySelector('#wel-next');
+        function refresh() { const v = input.value.trim(); next.disabled = v.length < 1; }
+        input.addEventListener('input', refresh);
+        input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !next.disabled) { userName = input.value.trim(); step = 1; render(); } });
+        next.addEventListener('click', function () { userName = input.value.trim(); step = 1; render(); });
+        setTimeout(function () { input.focus(); }, 60);
+      }
+
+      else if (step === 1) {
+        const first = userName.split(/\s+/)[0] || 'there';
+        stage.innerHTML =
+          '<div class="wel-avatar">' + shellyHeroSvg(140) + '</div>' +
+          '<h1 class="wel-title">Welcome, ' + escapeHtml(first) + '!</h1>' +
+          '<p class="wel-sub"><strong>Super Sheldon</strong> is your tutor command centre — everything you need to run your tutoring business in one place.</p>' +
+          '<div class="wel-points">' +
+            '<div class="wel-point"><div class="ic">🎓</div><div><div class="t">Courses, students, sessions</div><div class="d">1:1, group, recorded — all your learners in one roster.</div></div></div>' +
+            '<div class="wel-point"><div class="ic">💬</div><div><div class="t">Unified inbox</div><div class="d">Talk to parents, students, and instructors without leaving the app.</div></div></div>' +
+            '<div class="wel-point"><div class="ic">📈</div><div><div class="t">Real-time analytics</div><div class="d">Revenue, retention, at-risk learners, top performers — at a glance.</div></div></div>' +
+          '</div>' +
+          '<button class="wel-cta" id="wel-next">Next →</button>' +
+          '<div class="wel-dots"><div class="wel-dot"></div><div class="wel-dot on"></div><div class="wel-dot"></div></div>';
+        stage.querySelector('#wel-next').addEventListener('click', function () { step = 2; render(); });
+      }
+
+      else if (step === 2) {
+        const first = userName.split(/\s+/)[0] || 'there';
+        stage.innerHTML =
+          '<div class="wel-avatar">' + shellyHeroSvg(140) + '</div>' +
+          '<h1 class="wel-title">Here\'s what I do for you</h1>' +
+          '<p class="wel-sub">I\'m always one tap away (or <code style="background:rgba(0,0,0,0.18);padding:2px 8px;border-radius:6px;">Cmd+K</code>). Try <em>"who\'s at risk?"</em>, <em>"top up credits"</em>, or <em>"/help"</em>.</p>' +
+          '<div class="wel-points">' +
+            '<div class="wel-point"><div class="ic">⚡</div><div><div class="t">Real actions, with Undo</div><div class="d">Top up credits, schedule sessions, draft parent replies — every action is reversible.</div></div></div>' +
+            '<div class="wel-point"><div class="ic">🧩</div><div><div class="t">Playbooks &amp; bulk ops</div><div class="d">"Onboard a new student", "weekly wrap", or "/bulk recap" — one command, dozens of clicks saved.</div></div></div>' +
+            '<div class="wel-point"><div class="ic">🔥</div><div><div class="t">Always learning your habits</div><div class="d">Streak counter, smart chip suggestions, daily morning briefing.</div></div></div>' +
+          '</div>' +
+          '<button class="wel-cta" id="wel-next">Show me around 🚀</button>' +
+          '<div class="wel-dots"><div class="wel-dot"></div><div class="wel-dot"></div><div class="wel-dot on"></div></div>';
+        stage.querySelector('#wel-next').addEventListener('click', function () { finish(false); });
+      }
+
+      overlay.appendChild(stage);
+      overlay.querySelector('#wel-skip-btn').addEventListener('click', function () { finish(true); });
+    }
+
+    render();
+  }
+
   // Run onboarding when arriving fresh after sign-in
   function maybeOnboard() {
     if (!window.db) return;
     if (!db.isSignedIn() || !db.isFirstLogin()) return;
     setTimeout(function () {
-      open();
-      pendingQuestion = 'name';
-      say("Hi! I'm <strong>Shelly the Super</strong> 🦸‍♀️ — your AI sidekick on Super Sheldon. Before we dive in, <strong>what should I call you?</strong> (Just type your name below.)", { delay: 500 });
-    }, 700);
+      // Big-screen welcome takes over; it handles name capture, intro slides,
+      // then minimises to the normal floating Shelly and starts the spotlight tour.
+      showWelcomeOverlay();
+    }, 500);
   }
 
   // ===== Public API =====
