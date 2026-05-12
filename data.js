@@ -335,6 +335,21 @@
   db.isSignedIn = function () { return !!(cache.auth && cache.auth.signedIn); };
   db.isFirstLogin = function () { return !!(cache.auth && cache.auth.isFirstLogin); };
   db.completeOnboarding = function () { db.update(function (d) { d.auth.isFirstLogin = false; d.auth.onboardingDone = true; }); };
+
+  // Mark the start of a brand-new sign-in session. Called from app.setAuthed(true)
+  // so EVERY login (Google, phone, email, OTP) re-arms the onboarding tour
+  // regardless of any prior state. Idempotent.
+  db.markFreshLogin = function () {
+    db.update(function (d) {
+      d.auth = d.auth || {};
+      d.auth.isFirstLogin = true;
+      d.auth.onboardingDone = false;
+      d.shellyChat = [];
+      d.shellyNudges = {};
+      d.shellyPrefs = d.shellyPrefs || {};
+      d.shellyPrefs.lastBriefingDay = null; // so the morning briefing also re-fires after the tour
+    });
+  };
   db.setMyName = function (name) { db.update(function (d) { if (name) { d.me.name = name; d.me.avatar = name.trim()[0].toUpperCase(); } }); };
   db.setMyEmail = function (email) { db.update(function (d) { d.me.email = email; }); };
 

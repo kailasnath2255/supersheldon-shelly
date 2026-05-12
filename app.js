@@ -27,6 +27,10 @@
     setAuthed(v) {
       const s = read(); s.authed = !!v; write(s);
       if (window.db && v) {
+        // Re-arm onboarding for EVERY login transition (Google/phone/email/OTP)
+        // — this is the single source of truth so login pages can't accidentally
+        // skip resetting it.
+        db.markFreshLogin();
         const id = s.identifier || (db.get().auth && db.get().auth.identifier) || '';
         const method = s.method || (db.get().auth && db.get().auth.method) || 'phone';
         db.signIn(id, method);
